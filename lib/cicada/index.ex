@@ -46,11 +46,15 @@ defmodule Cicada.Index do
           Map.put(acc, String.to_atom(tag), get_in(device, [tag]))
         end)
         Enum.map(v.values, fn(value) ->
+          v = case get_in(device, value) do
+            a when a |> is_number -> a/1
+            _ -> 0.0
+          end
           %{
             measurement: "#{key}.#{Enum.join(value, ".")}",
             timestamp: timestamp,
             fields: %{
-              value: get_in(device, value)
+              value: v
             },
             tags: tags
           }

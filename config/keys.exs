@@ -20,8 +20,8 @@ config :cicada, keys: %{
     tags: ["id"],
     values: [
       ["price"],
-      ["delivered"],
-      ["received"],
+      ["kw_delivered"],
+      ["kw_received"],
       ["kw"]
     ]
   },
