@@ -2,7 +2,7 @@ defmodule CertTest.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :cert_test,
+    [app: :cicada,
      version: "0.1.0",
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
@@ -16,7 +16,7 @@ defmodule CertTest.Mixfile do
   def application do
     [
       applications: [:logger, :cowboy, :httpoison],
-      mod: {CertTest, []}
+      mod: {Cicada, []}
     ]
   end
 
@@ -33,6 +33,8 @@ defmodule CertTest.Mixfile do
     [
       {:httpoison, "~> 0.10.0"},
       {:cowboy, "~> 1.0.4"},
+      {:poison, "~> 3.0", override: true},
+      {:instream, "~> 0.13.0"}
     ]
   end
 end

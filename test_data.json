@@ -1,0 +1,56 @@
+{
+  "id": "3423jkh2",
+  "data":{
+    "weather":[{
+      "id": "sdrw45345sdf",
+      "outdoor_temperature": -5.0,
+      "indoor_temperature": 22.0,
+      "humidity": 45.00,
+      "pressure": 1034.43,
+      "wind": {
+        "speed": 5,
+        "direction": 220,
+        "gust": 0
+      },
+      "rain": 2.5,
+      "uv": 2,
+      "solar": {
+        "radiation": 1.6,
+        "intensity": 10
+      }
+    }],
+    "energy":[{
+      "id": "sdfsdfsdfsdf",
+      "price": 0.04,
+      "delivered": 547.00,
+      "received": 0.0,
+      "kw": 3.0
+    }],
+    "ieq":[{
+      "id": "12312",
+      "battery": 0,
+      "co2": 400,
+      "energy": 0,
+      "pressure": 1023,
+      "humidity": 45.78,
+      "light": 0,
+      "no2": 33,
+      "co": 33.4,
+      "pm": 175,
+      "rssi": -34,
+      "sound": 0,
+      "temperature": 22.5,
+      "uv": 0,
+      "voc": 145
+    }],
+    "hvac":[{
+      "id": "w342sdfsd",
+      "state": "off",
+      "mode": "auto",
+      "fan_mode": "off",
+      "fan_state": "off",
+      "target_temperature": 72.00,
+      "temperature": 71.5
+    }]
+  }
+}

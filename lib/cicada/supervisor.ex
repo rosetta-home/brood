@@ -1,4 +1,4 @@
-defmodule CertTest.Supervisor do
+defmodule Cicada.Supervisor do
   use Supervisor
 
   def start_link() do
@@ -7,8 +7,9 @@ defmodule CertTest.Supervisor do
 
   def init(:ok) do
     children = [
-      worker(CertTest.Server, []),
-      worker(CertTest.Client, [])
+      Cicada.DB.InfluxDB.child_spec,
+      supervisor(Task.Supervisor, [[name: Cicada.TaskSupervisor]]),
+      worker(Cicada.Server, []),
     ]
     supervise(children, strategy: :one_for_one)
   end

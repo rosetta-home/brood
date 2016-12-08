@@ -1,15 +1,13 @@
-defmodule CertTest.Server do
+defmodule Cicada.Server do
   require Logger
 
   def start_link do
-    Logger.info("test")
-    port = 4000
-    priv_dir = :code.priv_dir(:cert_test)
-
+    port = Application.get_env(:cicada, :port)
+    priv_dir = :code.priv_dir(:cicada)
     dispatch = :cowboy_router.compile([
       { :_,
         [
-          {"/", CertTest.Index, []}
+          {"/", Cicada.Index, []}
         ]
       }
     ])
