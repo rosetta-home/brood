@@ -41,7 +41,8 @@ config :cicada, keys: %{
       ["sound"],
       ["temperature"],
       ["uv"],
-      ["voc"]
+      ["voc"],
+      ["door"]
     ]
   },
   hvac: %{
