@@ -5,14 +5,14 @@ services:
     ports:
       - "8083:8083"
       - "8086:8086"
-    expose:
-      - "8086"
   grafana:
     image: grafana/grafana:4.0.1
     depends_on:
       - influxdb
     ports:
       - "3000:3000"
+    expose:
+      - "3000"
   cicada:
     build: .
     depends_on:
