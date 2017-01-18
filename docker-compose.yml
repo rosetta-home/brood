@@ -19,3 +19,5 @@ services:
       - influxdb
     ports:
       - "4000:4000"
+    expose:
+      - "4000"

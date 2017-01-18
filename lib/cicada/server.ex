@@ -7,7 +7,8 @@ defmodule Cicada.Server do
     dispatch = :cowboy_router.compile([
       { :_,
         [
-          {"/", Cicada.Index, []}
+          {"/", Cicada.Index, []},
+          {"/test", Cicada.Test, []}
         ]
       }
     ])
@@ -24,6 +25,5 @@ defmodule Cicada.Server do
       [{:env, [{:dispatch, dispatch}]}]
     )
   end
-
 
 end
