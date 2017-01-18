@@ -3,6 +3,7 @@ defmodule Cicada.Server do
 
   def start_link do
     port = Application.get_env(:cicada, :port)
+    Logger.info "Starting Server on port #{port}"
     priv_dir = :code.priv_dir(:cicada)
     dispatch = :cowboy_router.compile([
       { :_,
