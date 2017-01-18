@@ -5,6 +5,7 @@ defmodule Cicada.Server do
     port = Application.get_env(:cicada, :port)
     Logger.info "Starting Server on port #{port}"
     priv_dir = :code.priv_dir(:cicada)
+    Logger.info "Priv Dir #{priv_dir}"
     dispatch = :cowboy_router.compile([
       { :_,
         [
@@ -13,7 +14,8 @@ defmodule Cicada.Server do
         ]
       }
     ])
-    {:ok, _} = :cowboy.start_https(:https, 100,
+    Logger.info "#{inspect dispatch}"
+    {:ok, ok} = :cowboy.start_https(:https, 100,
       [
         {:ip, {0,0,0,0}},
         {:port, port},
@@ -25,6 +27,8 @@ defmodule Cicada.Server do
       ],
       [{:env, [{:dispatch, dispatch}]}]
     )
+    Logger.info "#{inspect ok}"
+    {:ok, ok}
   end
 
 end
