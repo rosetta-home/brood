@@ -21,3 +21,6 @@ priv/certs/keys
 priv/certs/requests
 priv/certs/*.key
 priv/certs/*.crt
+
+.env
+*-prod.env
