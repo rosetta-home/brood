@@ -1,8 +1,8 @@
-defmodule Cicada.DB.InfluxDB do
-  use Instream.Connection, otp_app: :cicada
+defmodule Brood.DB.InfluxDB do
+  use Instream.Connection, otp_app: :brood
 
   require Logger
-  @db Application.get_env(:cicada, :influx_database)
+  @db Application.get_env(:brood, :influx_database)
 
   def wait_till_up do
     case ping do

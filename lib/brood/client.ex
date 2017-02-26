@@ -1,4 +1,4 @@
-defmodule CertTest.Client do
+defmodule Brood.Client do
   use GenServer
   require Logger
 
@@ -12,7 +12,7 @@ defmodule CertTest.Client do
   end
 
   def handle_info(:test, state) do
-    priv_dir = :code.priv_dir(:cert_test)
+    priv_dir = :code.priv_dir(:brood)
     {reply, http} = HTTPoison.get "https://localhost:4000/", [], [
       hackney: [
         ssl_options: [

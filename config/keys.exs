@@ -1,5 +1,5 @@
 use Mix.Config
-config :cicada, keys: %{
+config :brood, keys: %{
   weather: %{
     tags: ["id"],
     values: [

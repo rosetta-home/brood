@@ -22,7 +22,7 @@ services:
     env_file:
       - grafana-variables-${ENV}.env
 
-  cicada:
+  brood:
     build: .
     logging:
       driver: syslog

@@ -1,16 +1,16 @@
-defmodule Cicada.Server do
+defmodule Brood.Server do
   require Logger
 
   def start_link do
-    port = Application.get_env(:cicada, :port)
+    port = Application.get_env(:brood, :port, 4000)
     Logger.info "Starting Server on port #{port}"
-    priv_dir = :code.priv_dir(:cicada)
+    priv_dir = :code.priv_dir(:brood)
     Logger.info "Priv Dir #{priv_dir}"
     dispatch = :cowboy_router.compile([
       { :_,
         [
-          {"/", Cicada.Index, []},
-          {"/test", Cicada.Test, []}
+          {"/", Brood.Index, []},
+          {"/test", Brood.Test, []}
         ]
       }
     ])

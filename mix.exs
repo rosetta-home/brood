@@ -2,7 +2,7 @@ defmodule CertTest.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :cicada,
+    [app: :brood,
      version: "0.1.0",
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
@@ -15,8 +15,8 @@ defmodule CertTest.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger, :cowboy, :httpoison],
-      mod: {Cicada, []}
+      applications: [:logger, :cowboy, :httpoison, :instream],
+      mod: {Brood.Application, []}
     ]
   end
 

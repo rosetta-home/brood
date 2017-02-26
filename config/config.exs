@@ -2,11 +2,11 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
-config :cicada,
-  influx_database: "cicada",
+config :brood,
+  influx_database: "brood",
   port: 4000
 
-config :cicada, Cicada.DB.InfluxDB,
+config :brood, Brood.DB.InfluxDB,
     host:      "influxdb",
     pool:      [ max_overflow: 10, size: 5 ],
     port:      8086,

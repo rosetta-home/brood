@@ -1,4 +1,4 @@
-defmodule Cicada.Test do
+defmodule Brood.Test do
   require Logger
 
   defmodule State do
