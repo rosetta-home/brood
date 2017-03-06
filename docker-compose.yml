@@ -22,16 +22,16 @@ services:
     env_file:
       - grafana-variables-${ENV}.env
 
-  brood:
-    build: .
+  vernemq:
+    image: erlio/docker-vernemq:0.15.3
     logging:
       driver: syslog
     depends_on:
       - influxdb
     ports:
-      - "4000:4000"
-    expose:
-      - "4000"
+      - "4883:4883"
+    env_file:
+      - vernemq-variables-${ENV}.env
 volumes:
   influx-data:
     driver: local
