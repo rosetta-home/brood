@@ -41,7 +41,7 @@ defmodule Brood.MQTT do
           measurement: "#{type}.#{key}",
           timestamp: timestamp,
           fields: %{
-            value: v |> Map.get("value")
+            value: (v |> Map.get("value")) / 1
           },
           tags: %{
             node_id: client,
