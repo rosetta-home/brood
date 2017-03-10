@@ -6,7 +6,7 @@ defmodule Brood.Application do
     children = [
       Brood.DB.InfluxDB.child_spec,
       supervisor(Task.Supervisor, [[name: Brood.TaskSupervisor]]),
-      worker(Brood.Server, []),
+      worker(Brood.MQTT, []),
     ]
     opts = [strategy: :one_for_one, name: Brood.Supervisor]
     {:ok, pid} = Supervisor.start_link(children, opts)

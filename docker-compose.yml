@@ -26,12 +26,21 @@ services:
     image: erlio/docker-vernemq:0.15.3
     logging:
       driver: syslog
-    depends_on:
-      - influxdb
     ports:
-      - "4883:4883"
+      - "1883:1883"
+    expose:
+      - "1883"
     env_file:
       - vernemq-variables-${ENV}.env
+
+  brood:
+    build: .
+    logging:
+      driver: syslog
+    depends_on:
+      - vernemq
+      - influxdb
+
 volumes:
   influx-data:
     driver: local
