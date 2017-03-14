@@ -8,7 +8,9 @@ defmodule Brood.MQTT do
   def start_link do
     client = Node.self |> Atom.to_string
     Logger.info "MQTT Client #{client} Connecting: #{@host}:#{@port}"
-    GenMQTT.start_link(__MODULE__, nil, [host: @host, port: @port, name: __MODULE__, client: client])
+    priv_dir = :code.priv_dir(:brood)
+    transport = {:ssl, [{:certfile, "#{priv_dir}/ssl/cicada.crt"}, {:keyfile, "#{priv_dir}/ssl/cicada.key"}]}
+    GenMQTT.start_link(__MODULE__, nil, host: @host, port: @port, name: __MODULE__, client: client, transport: transport)
   end
 
   def on_connect(state) do

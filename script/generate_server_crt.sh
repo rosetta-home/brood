@@ -1,5 +1,5 @@
 PASSWORD="PASSWORD"
-NAME="RosettaHomeServer"
+NAME="Brood"
 
 # Make the config Server specific
 cat openssl.conf > use.conf

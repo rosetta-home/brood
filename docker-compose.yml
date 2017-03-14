@@ -24,12 +24,14 @@ services:
 
   vernemq:
     image: erlio/docker-vernemq:0.15.3
+    volumes:
+      - ./priv/ssl:/etc/ssl
     logging:
       driver: syslog
     ports:
-      - "1883:1883"
+      - "4883:4883"
     expose:
-      - "1883"
+      - "4883"
     env_file:
       - vernemq-variables-${ENV}.env
 

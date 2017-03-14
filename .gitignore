@@ -16,11 +16,16 @@ erl_crash.dump
 # Also ignore archive artifacts (built via "mix archive.build").
 *.ez
 
-priv/certs/certs
-priv/certs/keys
-priv/certs/requests
-priv/certs/*.key
-priv/certs/*.crt
+priv/ssl/*.crt
+priv/ssl/*.key
+priv/ssl/*.pem
+
+script/certs
+script/keys
+script/requests
+script/*.pem
+script/*.crt
+script/*.key
 
 .env
 *-prod.env

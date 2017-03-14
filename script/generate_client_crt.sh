@@ -1,5 +1,5 @@
 PASSWORD="PASSWORD"
-NAME="RosettaHomeClient"
+NAME="Cicada"
 
 # Make the config Client specific
 cat openssl.conf > use.conf
