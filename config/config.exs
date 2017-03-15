@@ -5,7 +5,7 @@ use Mix.Config
 config :brood,
   influx_database: "brood",
   port: 4000,
-  mqtt_host: "localhost",
+  mqtt_host: "vernemq",
   mqtt_port: 4883
 
 config :brood, Brood.DB.InfluxDB,
