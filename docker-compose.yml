@@ -10,7 +10,9 @@ services:
       - "8083:8083"
       - "8086:8086"
   grafana:
-    image: grafana/grafana:4.0.1
+    image: grafana/grafana:4.1.2
+    volumes:
+      - grafana-data:/var/lib/brood
     logging:
       driver: syslog
     depends_on:
@@ -45,4 +47,6 @@ services:
 
 volumes:
   influx-data:
+    driver: local
+  grafana-data:
     driver: local

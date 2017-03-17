@@ -36,14 +36,17 @@ defmodule Brood.MQTT do
   def write(data, client) do
     timestamp = :os.system_time(:nano_seconds)
     points = data |> Enum.flat_map(fn device ->
-      device |> Map.get("values") |> Enum.map(fn {k, v} ->
+      device |> Map.get("values") |> Enum.map(fn v ->
         key = v |> Map.get("key") |> Enum.join(".")
         type = device |> get_in(["device", "type"])
         %{
           measurement: "#{type}.#{key}",
           timestamp: timestamp,
           fields: %{
-            value: (v |> Map.get("value")) / 1
+            value: case v |> Map.get("value") do
+              num when num |> is_number -> num / 1
+              text -> text
+            end
           },
           tags: %{
             node_id: client,
