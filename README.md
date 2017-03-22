@@ -21,6 +21,27 @@ Brood forces an encrypted MQTT connection. The following steps show how to creat
   * you will have to manually build and burn a new [Rosetta Home image](https://github.com/rosetta-home/rosetta_home/blob/master/INSTALL.md).
 9. `$ docker-compose up`
 10. All logging is directed to `syslog`
+11. Go to `http://localhost:3000`
+12. Login:
+  * un: admin
+  * pw: admin
+13. Setup data source
+  * Main Menu > Data Sources > Add data Source
+      * Name: Brood InfluxDB
+      * Default: true/check
+      * Type: InfluxDB
+      * URL: http://influxdb:8086
+      * Access: Proxy
+      * Database: brood
+14. Import pre-configured dashboards
+  * Dashboard Menu > import
+  * preconfigured dashboards are available in `brood/priv/dashboards`
+  * Select InfluxDB data source configured above.
+
+*unfortunately Grafana does not allow for auto-selecting datasources when automatically importing dashboards, so it's manual for now*
+
+
+
 
 ## Example Dashboard
 
