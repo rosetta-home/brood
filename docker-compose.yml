@@ -44,6 +44,8 @@ services:
     depends_on:
       - vernemq
       - influxdb
+    env_file:
+      - brood-${ENV}.env
 
 volumes:
   influx-data:

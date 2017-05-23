@@ -9,10 +9,15 @@ config :brood,
   mqtt_port: 4883
 
 config :brood, Brood.DB.InfluxDB,
-    host:      "influxdb",
-    pool:      [ max_overflow: 10, size: 5 ],
-    port:      8086,
-    scheme:    "http",
-    writer:    Instream.Writer.Line
+  host:      "influxdb",
+  pool:      [ max_overflow: 10, size: 5 ],
+  port:      8086,
+  scheme:    "http",
+  writer:    Instream.Writer.Line
+
+config :satori,
+  url: "wss://open-data.api.satori.com",
+  app_key: System.get_env("SATORI_APP_KEY"),
+  role_secret: System.get_env("SATORI_ROLE_SECRET")
 
 import_config "keys.exs"

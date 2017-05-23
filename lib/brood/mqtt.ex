@@ -1,5 +1,6 @@
 defmodule Brood.MQTT do
   use GenMQTT
+  alias Brood.SatoriPublisher
   require Logger
 
   @host Application.get_env(:brood, :mqtt_host)
@@ -26,16 +27,16 @@ defmodule Brood.MQTT do
   end
 
   def process({client, data}) do
-    data |> parse |> write(client)
+    data
+    |> parse(client)
+    |> meta
+    |> write
+    |> publish
   end
 
-  def parse(data) do
-    data |> Poison.decode!
-  end
-
-  def write(data, client) do
+  def parse(data, client) do
     timestamp = :os.system_time(:nano_seconds)
-    points = data |> Enum.flat_map(fn device ->
+    data |> Poison.decode! |> Enum.flat_map(fn device ->
       device |> Map.get("values") |> Enum.map(fn v ->
         key = v |> Map.get("key") |> Enum.join(".")
         type = device |> get_in(["device", "type"])
@@ -52,11 +53,31 @@ defmodule Brood.MQTT do
             node_id: client,
             id: device |> get_in(["device", "interface_pid"]),
             type: type,
+            zipcode: nil,
+            climate_zone: nil
           }
         }
       end)
     end)
+  end
+
+  def meta(points) do
+    #TODO lookup zipcode/climate zone
+    zip = "60626"
+    cz = "6a"
+    points |> Enum.map(fn p ->
+      %{p | tags: %{p.tags | zipcode: zip, climate_zone: cz}} #dummy data
+    end)
+  end
+
+  def write(points) do
     Logger.info "#{inspect points}"
     points |> Brood.DB.InfluxDB.write_points
   end
+
+  def publish(points) do
+    points |> Enum.each(fn p -> SatoriPublisher.publish(p) end)
+    points
+  end
+
 end

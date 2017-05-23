@@ -15,7 +15,7 @@ defmodule CertTest.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger, :cowboy, :httpoison, :instream, :gen_mqtt],
+      applications: [:logger, :cowboy, :httpoison, :instream, :gen_mqtt, :satori],
       mod: {Brood.Application, []}
     ]
   end
@@ -36,6 +36,7 @@ defmodule CertTest.Mixfile do
       {:poison, "~> 3.0", override: true},
       {:instream, "~> 0.13.0"},
       {:gen_mqtt, "~> 0.3.1"},
+      {:satori, "~> 0.1.0"},
     ]
   end
 end

@@ -11,5 +11,7 @@
   "poison": {:hex, :poison, "3.0.0", "625ebd64d33ae2e65201c2c14d6c85c27cc8b68f2d0dd37828fde9c6920dd131", [:mix], []},
   "poolboy": {:hex, :poolboy, "1.5.1", "6b46163901cfd0a1b43d692657ed9d7e599853b3b21b95ae5ae0a777cf9b6ca8", [:rebar], []},
   "ranch": {:hex, :ranch, "1.2.1", "a6fb992c10f2187b46ffd17ce398ddf8a54f691b81768f9ef5f461ea7e28c762", [:make], []},
+  "satori": {:hex, :satori, "0.1.0", "17ff6b95dbf2f5eff767760a216fa0ee78df1ff5c2add375754eae2b331a35dd", [:mix], [{:poison, "~> 3.1", [hex: :poison, optional: false]}, {:websocket_client, "~> 1.2", [hex: :websocket_client, optional: false]}]},
   "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.1", "28a4d65b7f59893bc2c7de786dec1e1555bd742d336043fe644ae956c3497fbe", [:make, :rebar], []},
-  "vmq_commons": {:hex, :vmq_commons, "1.0.0", "5f5005c12db33f92f40e818a3617fb148972d59adcf99298c9d3808ef3582e34", [:rebar3], []}}
+  "vmq_commons": {:hex, :vmq_commons, "1.0.0", "5f5005c12db33f92f40e818a3617fb148972d59adcf99298c9d3808ef3582e34", [:rebar3], []},
+  "websocket_client": {:hex, :websocket_client, "1.2.1", "a965ce0be5583c90347400bceca66629e4debd5feb9bd516107e2924bdf39dad", [:rebar3], []}}

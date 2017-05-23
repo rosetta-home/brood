@@ -49,8 +49,12 @@ defmodule Brood.DB.InfluxDB do
 
   def write_points(points) do
     case %{database: @db, points: points} |> write(database: @db) do
-      :ok = resp -> Logger.debug "#{inspect resp}"
-      anything -> Logger.error "#{inspect anything}"
+      :ok = resp ->
+        Logger.debug "#{inspect resp}"
+        points
+      anything ->
+        Logger.error "#{inspect anything}"
+        []
     end
   end
 end
