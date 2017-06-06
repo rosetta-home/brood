@@ -46,6 +46,8 @@ services:
       - influxdb
     env_file:
       - brood-${ENV}.env
+    ports:
+      - "4001:4001"
 
 volumes:
   influx-data:
