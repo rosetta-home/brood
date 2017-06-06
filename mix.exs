@@ -34,7 +34,7 @@ defmodule CertTest.Mixfile do
       {:httpoison, "~> 0.11.0"},
       {:cowboy, "~> 1.1"},
       {:poison, "~> 3.0", override: true},
-      {:instream, "~> 0.13.0"},
+      {:instream, "~> 0.15.0"},
       {:gen_mqtt, "~> 0.3.1"},
       {:satori, "~> 0.1.0"},
       {:wobserver, "~> 0.1.7"}
