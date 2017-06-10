@@ -4,7 +4,7 @@ defmodule Brood.Application do
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
     children = [
-      worker(Brood.SatoriPublisher, []),
+      #worker(Brood.SatoriPublisher, []),
       Brood.DB.InfluxDB.child_spec,
       supervisor(Task.Supervisor, [[name: Brood.TaskSupervisor]]),
       worker(Brood.MQTT, []),
