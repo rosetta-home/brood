@@ -5,6 +5,10 @@ defmodule Brood.SatoriPublisher do
 
   @publish_channel "rosetta-home"
 
+  defmodule State do
+    defstruct pub: nil
+  end
+
   def start_link do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
@@ -14,12 +18,27 @@ defmodule Brood.SatoriPublisher do
   end
 
   def init(:ok) do
-    url = "#{Application.get_env(:satori, :url)}?appkey=#{Application.get_env(:satori, :app_key)}"
-    Logger.info "URL: #{url}"
-    {:ok, pub} = Satori.Publisher.start_link(url, @publish_channel, Application.get_env(:satori, :role_secret))
-    {:ok, %{pub: pub}}
+    Process.send_after(self(), :connect, 0)
+    {:ok, %State{}}
   end
 
+  def handle_info(:connect, state) do
+    url = "#{Application.get_env(:satori, :url)}?appkey=#{Application.get_env(:satori, :app_key)}"
+    Logger.info "URL: #{url}"
+    state =
+      case Satori.Publisher.start_link(url, @publish_channel, Application.get_env(:satori, :role_secret)) do
+        {:ok, pub} -> %State{state | pub: pub}
+        _ ->
+          Process.send_after(self(), :connect, 10_000)
+          state
+      end
+    {:noreply, state}
+  end
+
+  def handle_cast({:publish, data}, %State{pub: nil} = state) do
+    Logger.error("Satori Client not connected")
+    {:noreply, state}
+  end
   def handle_cast({:publish, data}, state) do
     Satori.Publisher.publish(state.pub, data)
     {:noreply, state}

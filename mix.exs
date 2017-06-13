@@ -36,7 +36,7 @@ defmodule CertTest.Mixfile do
       {:poison, "~> 3.0", override: true},
       {:instream, "~> 0.15.0"},
       {:gen_mqtt, "~> 0.3.1"},
-      {:satori, "~> 0.1.0"},
+      {:satori, "~> 0.2.0"},
       {:wobserver, "~> 0.1.7"}
     ]
   end
