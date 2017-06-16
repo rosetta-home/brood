@@ -54,7 +54,7 @@ defmodule Brood.DB.InfluxDB do
         points
       anything ->
         Logger.error "#{inspect anything}"
-        []
+        points
     end
   end
 end
