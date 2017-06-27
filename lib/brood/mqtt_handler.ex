@@ -1,4 +1,4 @@
-defmodule Brood.MQTT do
+defmodule Brood.MQTTHandler do
   use GenMQTT
   alias Brood.SatoriPublisher
   require Logger

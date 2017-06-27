@@ -10,29 +10,19 @@ defmodule CertTest.Mixfile do
      deps: deps()]
   end
 
-  # Configuration for the OTP application
-  #
-  # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger, :cowboy, :httpoison, :instream, :gen_mqtt, :satori, :wobserver],
+      applications: [:logger, :cowboy, :plug, :plug_rest, :httpoison, :instream, :gen_mqtt, :satori, :wobserver],
       mod: {Brood.Application, []}
     ]
   end
 
-  # Dependencies can be Hex packages:
-  #
-  #   {:mydep, "~> 0.3.0"}
-  #
-  # Or git/path repositories:
-  #
-  #   {:mydep, git: "https://github.com/elixir-lang/mydep.git", tag: "0.1.0"}
-  #
-  # Type "mix help deps" for more examples and options
   defp deps do
     [
       {:httpoison, "~> 0.11.0"},
       {:cowboy, "~> 1.1"},
+      {:plug, "~> 1.3"},
+      {:plug_rest, "~> 0.12.0"},
       {:poison, "~> 3.0", override: true},
       {:instream, "~> 0.15.0"},
       {:gen_mqtt, "~> 0.3.1"},
