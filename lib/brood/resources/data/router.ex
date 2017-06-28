@@ -11,7 +11,7 @@ defmodule Brood.Resource.Data.Router do
   plug :match
   plug :dispatch
 
-  resource "/:type/:timeframe", Data.Query
+  resource "/:type/:from/:to", Data.Query
 
   def unauthenticated(conn, params) do
     Logger.error "Unauthenticated: #{inspect conn}"
