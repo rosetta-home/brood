@@ -4,12 +4,15 @@ use Mix.Config
 
 config :brood,
   influx_database: "brood",
-  port: 4000,
-  mqtt_host: "vernemq",
-  mqtt_port: 4883
+  mongo_host: "localhost",
+  mongo_database: "brood",
+  mqtt_host: "locahost",
+  mqtt_port: 4883,
+  http_port: 8181,
+  account_collection: "accounts"
 
 config :brood, Brood.DB.InfluxDB,
-  host:      "influxdb",
+  host:      "localhost",
   pool:      [ max_overflow: 10, size: 5 ],
   port:      8086,
   scheme:    "http",

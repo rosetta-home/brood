@@ -1,24 +1,37 @@
 defmodule Brood.Application do
   use Application
+  alias Brood.Resource.Account
+
+  @mongo_database Application.get_env(:brood, :mongo_database)
+  @mongo_host Application.get_env(:brood, :mongo_host)
+  @http_port Application.get_env(:brood, :http_port)
+  @account_collection Application.get_env(:brood, :account_collection)
 
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
     children = [
-      #Brood.DB.InfluxDB.child_spec,
-      Plug.Adapters.Cowboy.child_spec(:http, Brood.HTTPRouter, [], [port: 8080]),
-      #supervisor(Task.Supervisor, [[name: Brood.TaskSupervisor]]),
+      Brood.DB.InfluxDB.child_spec,
+      Plug.Adapters.Cowboy.child_spec(:http, Brood.HTTPRouter, [], [port: @http_port]),
+      supervisor(Task.Supervisor, [[name: Brood.TaskSupervisor]]),
+      worker(Mongo, [[name: :mongo_brood, hostname: @mongo_host, database: @mongo_database, pool: DBConnection.Poolboy]]),
       #worker(Brood.SatoriPublisher, []),
       #worker(Brood.MQTTHandler, []),
     ]
     opts = [strategy: :one_for_one, name: Brood.Supervisor]
-    Supervisor.start_link(children, opts) |> create_db
+    Supervisor.start_link(children, opts) |> create_influx_db |> create_mongo_db
   end
 
-  def create_db({:ok, pid} = result) do
-    #Brood.DB.InfluxDB.wait_till_up
-    #Brood.DB.InfluxDB.create_database
-    #Brood.DB.InfluxDB.create_retention_policies
-    #Brood.DB.InfluxDB.create_continuous_queries
+  def create_influx_db({:ok, pid} = result) do
+    Brood.DB.InfluxDB.wait_till_up
+    Brood.DB.InfluxDB.create_database
+    Brood.DB.InfluxDB.create_retention_policies
+    Brood.DB.InfluxDB.create_continuous_queries
     result
   end
+
+  def create_mongo_db({:ok, pid} = result) do
+    Account.index()
+    result
+  end
+
 end

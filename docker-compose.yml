@@ -9,6 +9,16 @@ services:
     ports:
       - "8083:8083"
       - "8086:8086"
+  mongodb:
+    image: mongo:3.4
+    volumes:
+      - mongo-data:/data/db
+    logging:
+      driver: syslog
+    ports:
+      - "27017:27017"
+    expose:
+      - "27017"
   grafana:
     image: grafana/grafana:4.1.2
     volumes:
@@ -23,7 +33,6 @@ services:
       - "3000"
     env_file:
       - grafana-variables-${ENV}.env
-
   vernemq:
     image: erlio/docker-vernemq:0.15.3
     volumes:
@@ -36,23 +45,24 @@ services:
       - "4883"
     env_file:
       - vernemq-variables-${ENV}.env
-
-  brood:
-    build: .
-    logging:
-      driver: syslog
-    depends_on:
-      - vernemq
-      - influxdb
-    env_file:
-      - brood-${ENV}.env
-    ports:
-      - "4001:4001"
-      - "8080:8080"
+  #brood:
+  #  build: .
+  #  logging:
+  #    driver: syslog
+  #  depends_on:
+  #    - vernemq
+  #    - influxdb
+  #  env_file:
+  #    - brood-${ENV}.env
+  #  ports:
+  #    - "4001:4001"
+  #    - "8080:8080"
 
 
 volumes:
   influx-data:
     driver: local
   grafana-data:
+    driver: local
+  mongo-data:
     driver: local

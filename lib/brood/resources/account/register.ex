@@ -1,9 +1,9 @@
 defmodule Brood.Resource.Account.Register do
   use PlugRest.Resource
+  alias Brood.Resource.Account
   require Logger
 
   def allowed_methods(conn, state) do
-    Logger.info "test"
     {["PUT"], conn, state}
   end
 
@@ -12,10 +12,16 @@ defmodule Brood.Resource.Account.Register do
   end
 
   def from_multipart(conn, state) do
-    Logger.info "#{inspect conn.params}"
+    with %Account{} = account <- conn.params |> Account.parse_params,
+      {:ok, %Mongo.InsertOneResult{} = result} <- account |> Account.register(conn.params["password_conf"]),
+      id <- result.inserted_id |> BSON.ObjectId.encode!,
+    do: respond(id, conn, state)
+  end
+
+  def respond(id, conn, state) do
     {true, conn
       |> put_resp_content_type("application/json")
-      |> put_rest_body("{\"success\": \"true\"}"),
+      |> put_rest_body("{\"success\": \"#{id}\"}"),
     state}
   end
 
