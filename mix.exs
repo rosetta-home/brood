@@ -12,7 +12,7 @@ defmodule CertTest.Mixfile do
 
   def application do
     [
-      applications: [:logger, :cowboy, :plug, :plug_rest, :comeonin, :httpoison, :instream, :mongodb, :poolboy, :gen_mqtt, :satori, :wobserver],
+      applications: [:logger, :cowboy, :plug, :plug_rest, :comeonin, :guardian, :httpoison, :instream, :mongodb, :poolboy, :gen_mqtt, :satori, :wobserver],
       mod: {Brood.Application, []}
     ]
   end
@@ -23,6 +23,7 @@ defmodule CertTest.Mixfile do
       {:cowboy, "~> 1.1"},
       {:plug, "~> 1.3"},
       {:plug_rest, "~> 0.12.0"},
+      {:guardian, "~> 0.14.4"},
       {:poison, "~> 3.0", override: true},
       {:instream, "~> 0.15.0"},
       {:mongodb, "~> 0.4.0"},

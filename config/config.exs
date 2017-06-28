@@ -23,4 +23,17 @@ config :satori,
   app_key: System.get_env("SATORI_APP_KEY"),
   role_secret: System.get_env("SATORI_ROLE_SECRET")
 
+config :guardian, Guardian,
+  allowed_algos: ["HS512"],
+  verify_module: Guardian.JWT,
+  issuer: "Brood",
+  ttl: { 30, :days },
+  allowed_drift: 2000,
+  verify_issuer: true,
+  secret_key: %{
+    "k" => "R3GxdTsUzG0tfb8ZyME51rF9m51So-mzeMNp2ZMHq1OIu59Rg4naH2EpBx7hueSwEKmQK1vRQXGqGF9BXdkOgA",
+    "kty" => "oct"
+  },
+  serializer: Brood.Resource.Account.GuardianSerializer
+
 import_config "keys.exs"

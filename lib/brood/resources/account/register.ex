@@ -1,6 +1,7 @@
 defmodule Brood.Resource.Account.Register do
   use PlugRest.Resource
   alias Brood.Resource.Account
+  alias Brood.Resource.Account.Router
   require Logger
 
   def allowed_methods(conn, state) do
@@ -14,15 +15,14 @@ defmodule Brood.Resource.Account.Register do
   def from_multipart(conn, state) do
     with %Account{} = account <- conn.params |> Account.parse_params,
       {:ok, %Mongo.InsertOneResult{} = result} <- account |> Account.register(conn.params["password_conf"]),
-      id <- result.inserted_id |> BSON.ObjectId.encode!,
-    do: respond(id, conn, state)
+      account <- Account.from_id(result.inserted_id),
+    do:
+      conn
+      |> Router.sign(account)
+      |> Router.response_body
+      |> Router.respond(state)
   end
 
-  def respond(id, conn, state) do
-    {true, conn
-      |> put_resp_content_type("application/json")
-      |> put_rest_body("{\"success\": \"#{id}\"}"),
-    state}
-  end
+
 
 end

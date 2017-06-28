@@ -10,8 +10,11 @@ defmodule Brood.Resource.Account do
   def register(%Account{} = account, password_conf) do
     case account.password == password_conf do
       true ->
-        account = %Account{account | password: account.password |> Pbkdf2.hashpwsalt}
-        :mongo_brood |> Mongo.insert_one(@account_collection, account, pool: DBConnection.Poolboy)
+        account = %Account{account |
+          password: account.password |> Pbkdf2.hashpwsalt,
+          _id: Mongo.object_id()
+        }
+        :mongo_brood |> Mongo.insert_one(@account_collection, Map.from_struct(account), pool: DBConnection.Poolboy)
       _ -> :password_mismatch
     end
   end
@@ -31,6 +34,11 @@ defmodule Brood.Resource.Account do
       %Account{username: username} = account <- parse_params(doc),
     do: account
   end
+
+  def from_id(%BSON.ObjectId{} = id) do
+    :mongo_brood |> Mongo.find_one(@account_collection, %{_id: id}, pool: DBConnection.Poolboy) |> parse_params
+  end
+  def from_id(id), do: BSON.ObjectId.decode!(id) |> from_id
 
   def validate_pw(%Account{password: password} = auth, %Account{password: hash} = account) do
     Pbkdf2.checkpw(password, hash)

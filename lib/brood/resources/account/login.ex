@@ -1,6 +1,7 @@
 defmodule Brood.Resource.Account.Login do
   use PlugRest.Resource
   alias Brood.Resource.Account
+  alias Brood.Resource.Account.Router
   require Logger
 
   def allowed_methods(conn, state) do
@@ -15,14 +16,11 @@ defmodule Brood.Resource.Account.Login do
     with %Account{} = auth <- conn.params |> Account.parse_params,
       %Account{} = account <- auth |> Account.authenticate,
       id <- account._id |> BSON.ObjectId.encode!,
-    do: respond("{\"success\": \"#{id}\"}", conn, state)
-  end
-
-  def respond(data, conn, state) do
-    {true, conn
-      |> put_resp_content_type("application/json")
-      |> put_rest_body(data),
-    state}
+    do:
+      conn
+      |> Router.sign(account)
+      |> Router.response_body
+      |> Router.respond(state)
   end
 
 end
