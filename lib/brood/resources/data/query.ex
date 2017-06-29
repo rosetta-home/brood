@@ -31,7 +31,7 @@ defmodule Brood.Resource.Data.Query do
     group_by_time = params |> Map.get("group_by_time", "1m")
     from = from |> parse_time
     to = to |> parse_time
-    "SELECT MEAN(value) FROM \"brood\".\"realtime\".\"#{type}\" WHERE node_id='0000000081474d35' AND time > #{to} - #{from} GROUP BY time(#{group_by_time})"
+    "SELECT MEAN(value) FROM \"brood\".\"realtime\".\"#{type}\" WHERE node_id='0000000081474d35' AND time > #{to} - #{from} GROUP BY time(#{group_by_time}) fill(previous)"
     |> Brood.DB.InfluxDB.query()
   end
 

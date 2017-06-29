@@ -5,7 +5,7 @@ defmodule Brood.Resource.Account do
 
   @account_collection Application.get_env(:brood, :account_collection)
 
-  defstruct _id: nil, location_name: nil, username: nil, password: nil, kit_id: nil, zipcode: nil, climate_zone: nil
+  defstruct _id: nil, location_name: nil, email: nil, password: nil, kit_id: nil, zipcode: nil, climate_zone: nil
 
   def register(%Account{} = account, password_conf) do
     case account.password == password_conf do
@@ -19,8 +19,8 @@ defmodule Brood.Resource.Account do
     end
   end
 
-  def authenticate(%Account{username: username, password: password} = auth) do
-    with %Account{username: username} = account <- auth |> find_user(),
+  def authenticate(%Account{email: email, password: password} = auth) do
+    with %Account{email: email} = account <- auth |> find_user(),
       true <- auth |> validate_pw(account)
     do
       account
@@ -29,9 +29,9 @@ defmodule Brood.Resource.Account do
     end
   end
 
-  def find_user(%Account{username: username} = user) do
-    with doc <- :mongo_brood |> Mongo.find_one(@account_collection, %{username: username}, pool: DBConnection.Poolboy),
-      %Account{username: username} = account <- parse_params(doc),
+  def find_user(%Account{email: email} = user) do
+    with doc <- :mongo_brood |> Mongo.find_one(@account_collection, %{email: email}, pool: DBConnection.Poolboy),
+      %Account{email: username} = account <- parse_params(doc),
     do: account
   end
 
@@ -60,8 +60,8 @@ defmodule Brood.Resource.Account do
   def index() do
     indexes = [
       %{
-        key: %{username: 1},
-        name: "username",
+        key: %{email: 1},
+        name: "email",
         unique: true
       },
       %{
