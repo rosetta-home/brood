@@ -11,6 +11,7 @@ defmodule Brood.Resource.Data.Router do
   plug :match
   plug :dispatch
 
+  resource "/:type/:from/:to/:group_by_time", Data.Query
   resource "/:type/:from/:to", Data.Query
 
   def unauthenticated(conn, params) do

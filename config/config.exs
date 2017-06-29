@@ -31,4 +31,5 @@ config :guardian, Guardian,
   secret_key: {Brood.Resource.Account.SecretKey, :fetch},
   serializer: Brood.Resource.Account.GuardianSerializer
 
+import_config "#{Mix.env}.exs"
 import_config "keys.exs"
