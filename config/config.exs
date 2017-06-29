@@ -1,18 +1,16 @@
-# This file is responsible for configuring your application
-# and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
 config :brood,
   influx_database: "brood",
-  mongo_host: "localhost",
+  mongo_host: "mongodb",
   mongo_database: "brood",
-  mqtt_host: "locahost",
+  mqtt_host: "vernemq",
   mqtt_port: 4883,
-  http_port: 8181,
+  http_port: 8080,
   account_collection: "accounts"
 
 config :brood, Brood.DB.InfluxDB,
-  host:      "localhost",
+  host:      "influxdb",
   pool:      [ max_overflow: 10, size: 5 ],
   port:      8086,
   scheme:    "http",
@@ -30,10 +28,7 @@ config :guardian, Guardian,
   ttl: { 30, :days },
   allowed_drift: 2000,
   verify_issuer: true,
-  secret_key: %{
-    "k" => "R3GxdTsUzG0tfb8ZyME51rF9m51So-mzeMNp2ZMHq1OIu59Rg4naH2EpBx7hueSwEKmQK1vRQXGqGF9BXdkOgA",
-    "kty" => "oct"
-  },
+  secret_key: {Brood.Resource.Account.SecretKey, :fetch},
   serializer: Brood.Resource.Account.GuardianSerializer
 
 import_config "keys.exs"

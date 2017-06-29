@@ -29,3 +29,4 @@ script/*.key
 
 .env
 *-prod.env
+priv/jwt_key.bin
