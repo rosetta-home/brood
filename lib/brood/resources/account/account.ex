@@ -21,12 +21,8 @@ defmodule Brood.Resource.Account do
 
   def authenticate(%Account{email: email, password: password} = auth) do
     with %Account{email: email} = account <- auth |> find_user(),
-      true <- auth |> validate_pw(account)
-    do
-      account
-    else
-      false -> :invalid_password
-    end
+      true <- auth |> validate_pw(account),
+    do: account
   end
 
   def find_user(%Account{email: email} = user) do
@@ -41,7 +37,11 @@ defmodule Brood.Resource.Account do
   def from_id(id), do: BSON.ObjectId.decode!(id) |> from_id
 
   def validate_pw(%Account{password: password} = auth, %Account{password: hash} = account) do
-    Pbkdf2.checkpw(password, hash)
+    case Pbkdf2.checkpw(password, hash) do
+      true -> true
+      false -> :invalid_password
+    end
+
   end
 
   def parse_params(nil), do: :no_account

@@ -15,14 +15,16 @@ defmodule Brood.Resource.Account.Register do
   def from_multipart(conn, state) do
     with %Account{} = account <- conn.params |> Account.parse_params,
       {:ok, %Mongo.InsertOneResult{} = result} <- account |> Account.register(conn.params["password_conf"]),
-      account <- Account.from_id(result.inserted_id),
-    do:
+      account <- Account.from_id(result.inserted_id)
+    do
       conn
       |> Router.sign(account)
       |> Router.response_body
       |> Router.respond(state)
+    else
+       {:error, %Mongo.Error{code: 11000}} -> :email_taken
+    end
+
   end
-
-
 
 end

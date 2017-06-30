@@ -33,7 +33,7 @@ defmodule Brood.Resource.Account.Router do
     state}
   end
 
-  def handle_errors(conn,  %{reason: %WithClauseError{term: :no_account}}) do
+  def handle_errors(conn,  %{reason: %CaseClauseError{term: :no_account}}) do
     send_error(conn, 422, "{\"error\": \"Invalid login\"}")
   end
 
@@ -41,10 +41,13 @@ defmodule Brood.Resource.Account.Router do
     send_error(conn, 422, "{\"error\": \"Invalid login\"}")
   end
 
+  def handle_errors(conn,  %{reason: %CaseClauseError{term: :email_taken}}) do
+    send_error(conn, 409, "{\"error\": \"Email address already in use\"}")
+  end
+
   def handle_errors(conn,  %{reason: %ArgumentError{}}) do
     send_error(conn, 400, "{\"error\": \"ArgumentError\"}")
   end
-
 
   def handle_errors(conn, other) do
     Logger.error("#{inspect other}")
