@@ -14,8 +14,8 @@ defmodule Brood.Application do
       Plug.Adapters.Cowboy.child_spec(:http, Brood.HTTPRouter, [], [port: @http_port]),
       supervisor(Task.Supervisor, [[name: Brood.TaskSupervisor]]),
       worker(Mongo, [[name: :mongo_brood, hostname: @mongo_host, database: @mongo_database, pool: DBConnection.Poolboy]]),
-      #worker(Brood.SatoriPublisher, []),
-      #worker(Brood.MQTTHandler, []),
+      worker(Brood.SatoriPublisher, []),
+      worker(Brood.MQTTHandler, []),
     ]
     opts = [strategy: :one_for_one, name: Brood.Supervisor]
     Supervisor.start_link(children, opts) |> create_influx_db |> create_mongo_db
