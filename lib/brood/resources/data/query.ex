@@ -10,7 +10,7 @@ defmodule Brood.Resource.Data.Query do
   @max_weeks 4
 
   def allowed_methods(conn, state) do
-    {["POST"], conn, state}
+    {["HEAD", "OPTIONS", "POST"], conn, state}
   end
 
   def content_types_accepted(conn, state) do
