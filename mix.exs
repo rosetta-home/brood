@@ -33,7 +33,8 @@ defmodule CertTest.Mixfile do
       {:wobserver, "~> 0.1.7"},
       {:comeonin, "~> 3.1"},
       {:base64url, "~> 0.0.1"},
-      {:jose, "~> 1.8"}
+      {:jose, "~> 1.8"},
+      {:cors_plug, "~> 1.3"}
     ]
   end
 end

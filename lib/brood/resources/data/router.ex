@@ -4,6 +4,7 @@ defmodule Brood.Resource.Data.Router do
   alias Brood.Resource.Data
   require Logger
 
+  plug CORSPlug, origin: ["http://35.167.180.46:8080", "http://localhost:8080"]
   plug Plug.Parsers, parsers: [:json], json_decoder: Poison
   plug Guardian.Plug.VerifyHeader, realm: "Bearer"
   plug Guardian.Plug.LoadResource
