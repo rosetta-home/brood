@@ -27,13 +27,24 @@ defmodule Brood.Resource.Data.Query do
     {true, conn, state}
   end
 
-  def do_query(%{"type" => type, "from" => from, "to" => to} = params) do
+  def do_query(%{"aggregator" => agg, "type" => type, "from" => from, "to" => to} = params) do
     group_by_time = params |> Map.get("group_by_time", "1m")
     from = from |> parse_time
     to = to |> parse_time
-    "SELECT MEAN(value) FROM \"brood\".\"realtime\".\"#{type}\" WHERE node_id='0000000081474d35' AND time > #{to} - #{from} GROUP BY time(#{group_by_time}) fill(previous)"
-    |> Brood.DB.InfluxDB.query()
+    query(agg, type, from, to, group_by_time) |> Brood.DB.InfluxDB.query()
   end
+
+  def query(agg, type, from, to, group_by_time) do
+    "SELECT #{agg |> aggregator()} FROM \"brood\".\"realtime\".\"#{type}\" WHERE node_id='0000000081474d35' AND time > #{to} - #{from} GROUP BY time(#{group_by_time}) fill(null)"
+  end
+
+  def aggregator("mean"), do: "MEAN(value)"
+  def aggregator("count"), do: "COUNT(value)"
+  def aggregator("sum"), do: "SUM(value)"
+  def aggregator("percentile99"), do: "PERCENTILE(\"value\", 99)"
+  def aggregator("percentile95"), do: "PERCENTILE(\"value\", 95)"
+  def aggregator("percentile75"), do: "PERCENTILE(\"value\", 75)"
+  def aggregator("percentile50"), do: "PERCENTILE(\"value\", 50)"
 
   def parse_time(time) do
     case Integer.parse(time) do
