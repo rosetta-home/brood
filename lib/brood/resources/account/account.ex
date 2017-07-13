@@ -48,13 +48,13 @@ defmodule Brood.Resource.Account do
   def parse_params(params) do
     %Account{}
     |> Map.to_list()
-    |> Enum.reduce %Account{},
+    |> Enum.reduce(%Account{},
       fn({k, _}, acc) ->
         case Map.fetch(params, Atom.to_string(k)) do
           {:ok, v} -> %{acc | k => v}
           :error -> acc
         end
-      end
+      end)
   end
 
   def index() do

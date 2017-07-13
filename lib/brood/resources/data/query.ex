@@ -10,43 +10,68 @@ defmodule Brood.Resource.Data.Query do
   @max_weeks 4
 
   def allowed_methods(conn, state) do
-    {["HEAD", "OPTIONS", "POST"], conn, state}
+    {["GET"], conn, state}
   end
 
-  def content_types_accepted(conn, state) do
-    {[{{"application", "json", :*}, :from_json}], conn, state}
+  def content_types_provided(conn, state) do
+    {[{{"application", "json", :*}, :to_json}], conn, state}
   end
 
-  def from_json(conn, state) do
+  def to_json(conn, state) do
     account = Guardian.Plug.current_resource(conn)
-    Logger.info("#{inspect account}")
-    Logger.info("#{inspect conn.params}")
-    conn =
-      conn
-      |> put_rest_body(Poison.encode!(conn.params |> do_query))
-    {true, conn, state}
+    #TODO get node_id from account
+    node_id = "0000000081474d35"
+    body =
+      conn.params
+      |> get_query(node_id)
+      |> Brood.DB.InfluxDB.query()
+      |> Poison.encode!()
+    {true, conn |> put_rest_body(body), state}
   end
 
-  def do_query(%{"aggregator" => agg, "type" => type, "from" => from, "to" => to} = params) do
-    group_by_time = params |> Map.get("group_by_time", "1m")
-    from = from |> parse_time
-    to = to |> parse_time
-    query(agg, type, from, to, group_by_time) |> Brood.DB.InfluxDB.query()
+  defp get_query(%{"aggregator" => agg, "measurement" => measurement, "tag" => tag, "value" => value, "from" => from, "to" => to, "bucket" => bucket}, node) do
+    build_query(node, agg, measurement, from, to, bucket, tag, value)
   end
 
-  def query(agg, type, from, to, group_by_time) do
-    "SELECT #{agg |> aggregator()} FROM \"brood\".\"realtime\".\"#{type}\" WHERE node_id='0000000081474d35' AND time > #{to} - #{from} GROUP BY time(#{group_by_time}) fill(null)"
+  defp get_query(%{"aggregator" => agg, "measurement" => measurement, "tag" => tag, "value" => value, "from" => from, "to" => to}, node) do
+    build_query(node, agg, measurement, from, to, "1m", tag, value)
   end
 
-  def aggregator("mean"), do: "MEAN(value)"
-  def aggregator("count"), do: "COUNT(value)"
-  def aggregator("sum"), do: "SUM(value)"
-  def aggregator("percentile99"), do: "PERCENTILE(\"value\", 99)"
-  def aggregator("percentile95"), do: "PERCENTILE(\"value\", 95)"
-  def aggregator("percentile75"), do: "PERCENTILE(\"value\", 75)"
-  def aggregator("percentile50"), do: "PERCENTILE(\"value\", 50)"
+  defp get_query(%{"aggregator" => agg, "measurement" => measurement, "from" => from, "to" => to, "bucket" => bucket}, node) do
+    build_query(node, agg, measurement, from, to, bucket)
+  end
 
-  def parse_time(time) do
+  defp get_query(%{"aggregator" => agg, "measurement" => measurement, "from" => from, "to" => to}, node) do
+    build_query(node, agg, measurement, from, to)
+  end
+
+  defp build_query(node, agg, measurement, from, to, bucket \\ "1m", tag \\ nil, value \\ nil) do
+    """
+    SELECT #{agg |> aggregator()}
+    FROM \"brood\".\"realtime\".\"#{measurement}\"
+    WHERE node_id='#{node}'
+    #{{tag, value} |> tags()}
+    AND time > #{to |> parse_time} - #{from |> parse_time}
+    GROUP BY time(#{bucket}) fill(null)
+    """
+  end
+
+  defp aggregator("mean"), do: "MEAN(value)"
+  defp aggregator("count"), do: "COUNT(value)"
+  defp aggregator("sum"), do: "SUM(value)"
+  defp aggregator("percentile99"), do: "PERCENTILE(\"value\", 99)"
+  defp aggregator("percentile95"), do: "PERCENTILE(\"value\", 95)"
+  defp aggregator("percentile75"), do: "PERCENTILE(\"value\", 75)"
+  defp aggregator("percentile50"), do: "PERCENTILE(\"value\", 50)"
+
+  defp tags({tag, value}) do
+    case tag do
+      nil -> ""
+      tag -> "AND #{tag} = '#{value}'"
+    end
+  end
+
+  defp parse_time(time) do
     case Integer.parse(time) do
       {int, "u"} -> (int |> get_max(@max_microseconds)) <> "u"
       {int, "s"} -> (int |> get_max(@max_seconds)) <> "s"
@@ -61,7 +86,7 @@ defmodule Brood.Resource.Data.Query do
     end
   end
 
-  def get_max(n, limit) do
+  defp get_max(n, limit) do
     case n > limit do
       true -> limit |> Integer.to_string
       false -> n |> Integer.to_string

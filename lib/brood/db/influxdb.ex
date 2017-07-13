@@ -5,12 +5,12 @@ defmodule Brood.DB.InfluxDB do
   @db Application.get_env(:brood, :influx_database)
 
   def wait_till_up do
-    case ping do
+    case ping() do
       :pong -> :ok
       :error ->
         Logger.error "waiting for influxdb to come up..."
         :timer.sleep(300)
-        wait_till_up
+        wait_till_up()
     end
   end
 
