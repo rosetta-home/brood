@@ -4,7 +4,7 @@ defmodule Brood.Resource.Account.Router do
   alias Brood.Resource.Account
   require Logger
 
-  plug CORSPlug, origin: ["http://35.167.180.46:8080", "http://localhost:8080"]
+  plug CORSPlug, origin: ["http://localhost:8080"]
   plug Plug.Parsers, parsers: [:multipart]
   plug :match
   plug :dispatch
