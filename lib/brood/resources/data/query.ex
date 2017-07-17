@@ -51,7 +51,8 @@ defmodule Brood.Resource.Data.Query do
     FROM \"brood\".\"realtime\".\"#{measurement}\"
     WHERE node_id='#{node}'
     #{{tag, value} |> tags()}
-    AND time > #{to |> parse_time} - #{from |> parse_time}
+    AND time >= #{from |> parse_time}
+    AND time <= #{to |> parse_time}
     GROUP BY time(#{bucket}) fill(null)
     """
   end
