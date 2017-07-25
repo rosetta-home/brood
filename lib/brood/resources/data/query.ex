@@ -51,7 +51,8 @@ defmodule Brood.Resource.Data.Query do
     FROM \"brood\".\"realtime\".\"#{measurement}\"
     WHERE node_id='#{node}'
     #{{tag, value} |> tags()}
-    AND time > #{to |> parse_time} - #{from |> parse_time}
+    AND time >= #{from |> parse_time}
+    AND time <= #{to |> parse_time}
     GROUP BY time(#{bucket}) fill(null)
     """
   end
@@ -77,16 +78,17 @@ defmodule Brood.Resource.Data.Query do
   end
 
   defp parse_time(time) do
-    case Integer.parse(time) do
-      {int, "u"} -> (int |> get_max(@max_microseconds)) <> "u"
-      {int, "s"} -> (int |> get_max(@max_seconds)) <> "s"
-      {int, "m"} -> (int |> get_max(@max_minutes)) <> "m"
-      {int, "h"} -> (int |> get_max(@max_hours)) <> "h"
-      {int, "d"} -> (int |> get_max(@max_days)) <> "d"
-      {int, "w"} -> (int |> get_max(@max_weeks)) <> "w"
-      :error ->
-        case time do
-          _ -> "now()"
+    case time |> String.ends_with?("Z") do
+      true -> "'#{time}'"
+      _ ->
+        case Integer.parse(time) do
+          {int, "u"} -> (int |> get_max(@max_microseconds)) <> "u"
+          {int, "s"} -> (int |> get_max(@max_seconds)) <> "s"
+          {int, "m"} -> (int |> get_max(@max_minutes)) <> "m"
+          {int, "h"} -> (int |> get_max(@max_hours)) <> "h"
+          {int, "d"} -> (int |> get_max(@max_days)) <> "d"
+          {int, "w"} -> (int |> get_max(@max_weeks)) <> "w"
+          :error -> "now()"
         end
     end
   end
