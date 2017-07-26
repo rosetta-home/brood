@@ -46,15 +46,7 @@ defmodule Brood.Resource.Data.Query do
   end
 
   defp build_query(node, agg, measurement, from, to, bucket \\ "1m", tag \\ nil, value \\ nil) do
-    """
-    SELECT #{agg |> aggregator()}
-    FROM \"brood\".\"realtime\".\"#{measurement}\"
-    WHERE node_id='#{node}'
-    #{{tag, value} |> tags()}
-    AND time >= #{from |> parse_time}
-    AND time <= #{to |> parse_time}
-    GROUP BY time(#{bucket}) fill(null)
-    """
+    "SELECT #{agg |> aggregator()} FROM \"brood\".\"realtime\".\"#{measurement}\" WHERE node_id='#{node}' #{{tag, value} |> tags()} AND time >= #{from |> parse_time} AND time <= #{to |> parse_time} GROUP BY time(#{bucket}) fill(null)"
   end
 
   defp aggregator("mean"), do: "MEAN(value)"
@@ -69,6 +61,9 @@ defmodule Brood.Resource.Data.Query do
   defp aggregator("percentile95"), do: "PERCENTILE(\"value\", 95)"
   defp aggregator("percentile75"), do: "PERCENTILE(\"value\", 75)"
   defp aggregator("percentile50"), do: "PERCENTILE(\"value\", 50)"
+  defp aggregator("percentile25"), do: "PERCENTILE(\"value\", 25)"
+  defp aggregator("percentile10"), do: "PERCENTILE(\"value\", 10)"
+  defp aggregator("percentile5"), do: "PERCENTILE(\"value\", 5)"
 
   defp tags({tag, value}) do
     case tag do
