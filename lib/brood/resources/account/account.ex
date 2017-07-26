@@ -41,8 +41,13 @@ defmodule Brood.Resource.Account do
       true -> true
       false -> :invalid_password
     end
-
   end
+
+  def delete(%Account{} = account) do
+    :mongo_brood |> Mongo.delete_one(@account_collection, %{_id: account._id}, pool: DBConnection.Poolboy)
+  end
+
+  def delete(:no_account), do: :ok
 
   def parse_params(nil), do: :no_account
   def parse_params(params) do
