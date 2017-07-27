@@ -12,12 +12,14 @@ defmodule BroodAccountTest do
   @zipcode "60626"
   @params %{"location_name" => @location_name, "email" => @email, "password" => @password, "password_conf" => @password, "kit_id" => @kit_id, "zipcode" => @zipcode}
 
-  setup(_context) do
-    Logger.debug "Clearing test user"
-    @params
-    |> Account.parse_params()
-    |> Account.find_user()
-    |> Account.delete()
+  setup do
+    on_exit fn ->
+      Logger.debug "Clearing test account"
+      @params
+      |> Account.parse_params()
+      |> Account.find_user()
+      |> Account.delete()
+    end
     :ok
   end
 
@@ -29,16 +31,18 @@ defmodule BroodAccountTest do
 
   test "email_taken" do
     conn = conn(:put, "/account/register", @params) |> put_req_header("content-type", "multipart/form-data")
+    Brood.HTTPRouter.call(conn, [])
     try do
+      conn = conn(:put, "/account/register", @params) |> put_req_header("content-type", "multipart/form-data")
       Brood.HTTPRouter.call(conn, [])
     rescue
-      clause in CaseClauseError -> assert true
+      _clause in CaseClauseError -> assert true
     end
   end
 
   test "login" do
     conn = conn(:put, "/account/register", @params) |> put_req_header("content-type", "multipart/form-data")
-    result = Brood.HTTPRouter.call(conn, [])
+    _result = Brood.HTTPRouter.call(conn, [])
     conn2 = conn(:post, "/account/login", %{"email": @email, "password": @password}) |> put_req_header("content-type", "multipart/form-data")
     result2 = Brood.HTTPRouter.call(conn2, [])
     assert result2.status == 200
