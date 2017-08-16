@@ -38,12 +38,12 @@ defmodule Brood.DB.InfluxDB do
     """
     CREATE CONTINUOUS QUERY cq_15m ON #{@db}
     BEGIN SELECT mean(value) AS value
-    INTO "#{@db}"."fifteen_minute".:MEASUREMENT FROM /.*/ GROUP BY id, node_id time(15m) END
+    INTO "#{@db}"."fifteen_minute".:MEASUREMENT FROM /.*/ GROUP BY time(15m), * END
     """ |> execute(method: :post)
     """
     CREATE CONTINUOUS QUERY cq_1h ON #{@db}
-    BEGIN SELECT mean(value)
-    INTO "#{@db}"."one_hour".:MEASUREMENT FROM /.*/ GROUP BY id, node_id, time(1h) END
+    BEGIN SELECT mean(value) as value
+    INTO "#{@db}"."one_hour".:MEASUREMENT FROM /.*/ GROUP BY time(1h), * END
     """ |> execute(method: :post)
   end
 
