@@ -11,10 +11,10 @@ defmodule Brood.Application do
     import Supervisor.Spec, warn: false
     children = [
       Brood.DB.InfluxDB.child_spec,
-      Plug.Adapters.Cowboy.child_spec(:http, Brood.HTTPRouter, [], [port: @http_port]),
+      Plug.Adapters.Cowboy.child_spec(:http, Brood.HTTPRouter, [], [port: @http_port, dispatch: dispatch]),
       supervisor(Task.Supervisor, [[name: Brood.TaskSupervisor]]),
       worker(Mongo, [[name: :mongo_brood, hostname: @mongo_host, database: @mongo_database, pool: DBConnection.Poolboy]]),
-      worker(Brood.SatoriPublisher, []),
+      #worker(Brood.SatoriPublisher, []),
       worker(Brood.MQTTHandler, []),
     ]
     opts = [strategy: :one_for_one, name: Brood.Supervisor]
@@ -34,4 +34,12 @@ defmodule Brood.Application do
     result
   end
 
+  defp dispatch do
+    [
+      {:_, [
+        {"/ws", Brood.Resource.WebSocket.Handler, []},
+        {:_, Plug.Adapters.Cowboy.Handler, {Brood.HTTPRouter, []}}
+      ]}
+    ]
+  end
 end

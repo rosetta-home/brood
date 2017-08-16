@@ -2,6 +2,7 @@ defmodule Brood.HTTPRouter do
   use Plug.Router
   alias Brood.Resource.Account
   alias Brood.Resource.Data
+  alias Brood.Resource.WebSocket
 
   plug :match
   plug :dispatch
