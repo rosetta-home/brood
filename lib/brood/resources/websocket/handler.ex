@@ -32,7 +32,9 @@ defmodule Brood.Resource.WebSocket.Handler do
   end
 
   def websocket_init(_type, req, _opts) do
-    {:ok, req, %State{}, @timeout}
+    req1 = :cowboy_req.set_resp_header("access-control-allow-methods", "GET, OPTIONS", req)
+    req2 = :cowboy_req.set_resp_header("access-control-allow-origin", "http://localhost:8080", req1)
+    {:ok, req2, %State{}, @timeout}
   end
 
   def websocket_handle({:text, <<@bearer, token :: binary>>}, req, state) do
