@@ -45,19 +45,19 @@ services:
       - "4883"
     env_file:
       - vernemq-variables-${ENV}.env
-  #brood:
-  #  build: .
-  #  logging:
-  #    driver: syslog
-  #  depends_on:
-  #    - vernemq
-  #    - influxdb
-  #    - mongodb
-  #  env_file:
-  #    - brood-${ENV}.env
-  #  ports:
-  #    - "4001:4001"
-  #    - "8080:8080"
+  brood:
+    build: .
+    logging:
+      driver: syslog
+    depends_on:
+      - vernemq
+      - influxdb
+      - mongodb
+    env_file:
+      - brood-${ENV}.env
+    ports:
+      - "4001:4001"
+      - "8080:8080"
 
 
 volumes:
