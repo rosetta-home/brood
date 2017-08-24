@@ -19,7 +19,7 @@ defmodule Brood.Resource.Account.Login do
     do:
       conn
       |> Router.sign(account)
-      |> Router.response_body
+      |> Router.response_body(account)
       |> Router.respond(state)
   end
 

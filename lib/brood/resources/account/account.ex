@@ -5,7 +5,11 @@ defmodule Brood.Resource.Account do
 
   @account_collection Application.get_env(:brood, :account_collection)
 
-  defstruct _id: nil, location_name: nil, email: nil, password: nil, kit_id: nil, zipcode: nil, climate_zone: nil
+  defmodule Hardware do
+    defstruct id: nil, weather: [], energy: [], hvac: [], ieq: []
+  end
+
+  defstruct _id: nil, location_name: nil, email: nil, password: nil, kit_id: nil, zipcode: nil, climate_zone: nil, hardware: %{}
 
   def register(%Account{} = account, password_conf) do
     case account.password == password_conf do

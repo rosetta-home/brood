@@ -23,8 +23,19 @@ defmodule Brood.Resource.Account.Router do
     jwt}
   end
 
-  def response_body({conn, jwt}) do
-    {conn, "{\"success\": \"#{jwt}\"}"}
+  def response_body({conn, jwt}, account) do
+    #TODO get hardware info from DB
+    account = %Account{account |
+      _id: account._id |> BSON.ObjectId.encode!,
+      hardware: %Account.Hardware{
+        id: "0000000081474d35",
+        weather: [%{id: "345345345"}],
+        energy: [%{id: "3098s0d98fs"}],
+        hvac: [%{id: "sa0sd9fs9df7s"}],
+        ieq: [%{id: "1"}, %{id: "2"}, %{id: "3"}, %{id: "4"}, %{id: "5"}]
+      }
+    }
+    {conn, %{success: jwt, account: account} |> Poison.encode!}
   end
 
   def respond({conn, data}, state) do

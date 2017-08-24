@@ -45,6 +45,7 @@ defmodule BroodAccountTest do
     _result = Brood.HTTPRouter.call(conn, [])
     conn2 = conn(:post, "/account/login", %{"email": @email, "password": @password}) |> put_req_header("content-type", "multipart/form-data")
     result2 = Brood.HTTPRouter.call(conn2, [])
+    assert result2.private.plug_rest_body |> Poison.decode! |> Map.has_key?("account")
     assert result2.status == 200
   end
 end

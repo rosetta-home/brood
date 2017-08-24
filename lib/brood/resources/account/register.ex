@@ -19,7 +19,7 @@ defmodule Brood.Resource.Account.Register do
     do
       conn
       |> Router.sign(account)
-      |> Router.response_body
+      |> Router.response_body(account)
       |> Router.respond(state)
     else
        {:error, %Mongo.Error{code: 11000}} -> :email_taken
