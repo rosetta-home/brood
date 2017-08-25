@@ -9,18 +9,21 @@ defmodule Brood.Resource.WebSocket.Handler do
   @ping "ping"
   @configure "configure"
   @configuration_state "configuration_state"
+  @touchstone_name "touchstone_name"
+  @touchstone_saved "touchstone_saved"
   @pong "pong"
 
   defmodule Message do
     @derive [Poison.Encoder]
     defstruct _type: :message,
+      id: nil,
       type: nil,
       payload: nil
   end
 
   defmodule Error do
     @derive [Poison.Encoder]
-    defstruct _type: :error, message: nil
+    defstruct _type: :error, id: nil, message: nil
   end
 
   defmodule State do
@@ -71,6 +74,11 @@ defmodule Brood.Resource.WebSocket.Handler do
   def handle_message(%Message{type: @configure} = mes, state) do
     :timer.sleep(10000)
     {%Message{type: @configuration_state, payload: %{current_id: 1}}, state}
+  end
+
+  def handle_message(%Message{type: @touchstone_name} = mes, state) do
+    :timer.sleep(10000)
+    {%Message{type: @touchstone_saved, payload: %{current_id: mes.payload.id, name: mes.payload.name}}, state}
   end
 
   def handle_message(%Message{} = mes, state) do
