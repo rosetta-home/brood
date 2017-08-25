@@ -68,21 +68,21 @@ defmodule Brood.Resource.WebSocket.Handler do
   end
 
   def handle_message(%Message{type: @ping} = mes, state) do
-    {%Message{type: @pong, payload: %{ok: :yes}}, state}
+    {%Message{mes | type: @pong, payload: %{ok: :yes}}, state}
   end
 
   def handle_message(%Message{type: @configure} = mes, state) do
     :timer.sleep(10000)
-    {%Message{type: @configuration_state, payload: %{current_id: 1}}, state}
+    {%Message{mes | type: @configuration_state, payload: %{current_id: 1}}, state}
   end
 
   def handle_message(%Message{type: @touchstone_name} = mes, state) do
     :timer.sleep(10000)
-    {%Message{type: @touchstone_saved, payload: %{current_id: mes.payload.id, name: mes.payload.name}}, state}
+    {%Message{mes | type: @touchstone_saved, payload: %{current_id: mes.payload.id, name: mes.payload.name}}, state}
   end
 
   def handle_message(%Message{} = mes, state) do
-    {%Message{type: :unknow_type, payload: %{type: mes.type}}, state}
+    {%Message{mes | type: :unknown_type, payload: %{type: mes.type}}, state}
   end
 
   def websocket_info(:shutdown, req, state) do
