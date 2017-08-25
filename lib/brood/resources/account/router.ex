@@ -29,10 +29,10 @@ defmodule Brood.Resource.Account.Router do
       _id: account._id |> BSON.ObjectId.encode!,
       hardware: %Account.Hardware{
         id: "0000000081474d35",
-        weather: [%{id: "345345345"}],
-        energy: [%{id: "3098s0d98fs"}],
-        hvac: [%{id: "sa0sd9fs9df7s"}],
-        ieq: [%{id: "1"}, %{id: "2"}, %{id: "3"}, %{id: "4"}, %{id: "5"}]
+        weather: [%{id: "345345345", name: "Wunderground-98"}],
+        energy: [%{id: "3098s0d98fs", name: "Neurio-0x0005643578"}],
+        hvac: [%{id: "sa0sd9fs9df7s", name: "RadioThermostat-986776d3"}],
+        ieq: [%{id: "1", name: "Kitchen"}, %{id: "2", name: nil}, %{id: "3", name: nil}, %{id: "4", name: "Bathroom"}, %{id: "5", name: nil}]
       }
     }
     {conn, %{success: jwt, account: account} |> Poison.encode!}
