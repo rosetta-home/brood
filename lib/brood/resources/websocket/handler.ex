@@ -78,7 +78,7 @@ defmodule Brood.Resource.WebSocket.Handler do
 
   def handle_message(%Message{type: @touchstone_name} = mes, state) do
     :timer.sleep(10000)
-    {%Message{mes | type: @touchstone_saved, payload: %{current_id: mes.payload["id"], name: mes.payload["name"]}}, state}
+    {%Message{mes | type: @touchstone_saved, payload: %{current_id: mes.payload |> Map.get("id"), name: mes.payload |> Map.get("name")}}, state}
   end
 
   def handle_message(%Message{} = mes, state) do
