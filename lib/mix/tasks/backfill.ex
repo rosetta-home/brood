@@ -3,13 +3,15 @@ defmodule Mix.Tasks.BackFill do
   use Timex
   require Logger
 
+  @shortdoc "Backfill data for development"
+  @moduledoc """
+  Backfill data for development
+  """
   def run(_args) do
     Application.ensure_all_started(:timex)
     Application.ensure_all_started(:instream)
     Application.ensure_all_started(:poolboy)
-    Brood.DB.InfluxDB.Connection.config[:database]
-    |> Instream.Cluster.Database.create()
-    |> Brood.DB.InfluxDB.Connection.execute()
+    Supervisor.start_link([Brood.DB.InfluxDB.child_spec], strategy: :one_for_one)
     IO.puts "Running: Filling InfluxDB..."
     random("ieq.co2",400,1200)
     Mix.shell.info "InfluxDB has been filled!"
@@ -26,7 +28,7 @@ defmodule Mix.Tasks.BackFill do
 
   def write(points) do
     Logger.info "#{inspect points}"
-    points |> Brood.DB.InfluxDB.write_points
+    [points] |> Brood.DB.InfluxDB.write_points
   end
 
   def random(datapoint,begin,start) do
