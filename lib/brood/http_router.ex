@@ -36,9 +36,8 @@ defmodule Brood.HTTPRouter do
 
   def get_data(measurement) do
     node = "00000000fdf4ffe2"
-    "SELECT MEAN(value) as value FROM \"brood\".\"realtime\".\"#{measurement}\" WHERE node_id='#{node}' AND time > now() - 30d GROUP BY time(6h) fill(null)"
+    "SELECT MEAN(value) as value FROM \"brood\".\"realtime\".\"#{measurement}\" WHERE time > now()-30d GROUP BY time(6h) fill(null)"
     |> Brood.DB.InfluxDB.query()
-    |> Map.get("results", [])
   end
 
 end

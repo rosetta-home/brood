@@ -9,6 +9,7 @@ defmodule Mix.Tasks.BackFill do
     Application.ensure_all_started(:timex)
     Application.ensure_all_started(:instream)
     Application.ensure_all_started(:poolboy)
+    Supervisor.start_link([Brood.DB.InfluxDB.child_spec], strategy: :one_for_one)
     IO.puts "Running: Filling InfluxDB..."
     random("ieq.co2", 400, 1200)
     random("ieq.voc", 0, 300)
@@ -29,7 +30,7 @@ defmodule Mix.Tasks.BackFill do
 
   def random(datapoint, start, range) do
     total = @backfill_days * 24 * 60
-    start_date = Timex.now() |> Timex.shift(days: 30)
+    start_date = Timex.now() |> Timex.shift(days: -@backfill_days)
     0..total |> Enum.map(fn(i) ->
       date_str = Timex.shift(start_date, minutes: i)
       timestamp = DateTime.to_unix(Timex.to_datetime(date_str), :milliseconds)
