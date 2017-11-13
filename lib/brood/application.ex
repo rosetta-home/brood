@@ -38,6 +38,7 @@ defmodule Brood.Application do
     [
       {:_, [
         {"/ws", Brood.Resource.WebSocket.Handler, []},
+        {"/static/[...]", :cowboy_static, {:priv_dir,  :brood, "static"}},
         {:_, Plug.Adapters.Cowboy.Handler, {Brood.HTTPRouter, []}}
       ]}
     ]
