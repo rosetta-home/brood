@@ -121,6 +121,10 @@
         .y(function(d) { return y(d[1]); })
         .curve(d3.curveBundle)
 
+      var radial = d3.radialLine()
+        .angle(function(d) { return x(d[0]); })
+        .radius(function(d) { return y(d[1]); })
+
       function render(){
         var d_p = [];
         for(var d = 0; d < data.length; d++){
@@ -198,7 +202,7 @@
           .attr("dy", -20)
           .attr("opacity", .5);
         title.innerHTML = measurement[0];
-        current.innerHTML = data[data.length-1][1].toFixed(4) + " " + measurement[1];
+        current.innerHTML = (data[data.length-1][1] ? data[data.length-1][1].toFixed(4) : 0.0000) + " " + measurement[1];
         bg.style.backgroundColor = color_pallette(1);
         bg.style.display = "block";
         title.style.color = color_pallette(.5);
