@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - lines - cubes</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				background-color: #000000;
+				margin: 0px;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<script src="/static/js/three.min.js"></script>
+    <script src="/static/js/d3-4.11.0.min.js"></script>
+    <script src="/static/js/d3-scale-chromatic.min.js"></script>
+    <script src="/static/js/d3-scale.min.js"></script>
+
+		<script>
+      var measurement_data = <%= Poison.encode!(data) %>;
+      var loader = new THREE.FontLoader();
+      var font;
+      var hues = [
+        d3.interpolateBuGn,
+        d3.interpolateBuPu,
+        d3.interpolateGnBu,
+        d3.interpolateOrRd,
+        d3.interpolatePuBuGn,
+        d3.interpolatePuBu,
+        d3.interpolatePuRd,
+        d3.interpolateRdPu,
+        d3.interpolateYlGnBu,
+        d3.interpolateYlGn,
+        d3.interpolateYlOrBr,
+        d3.interpolateYlOrRd,
+        d3.interpolateSpectral,
+        d3.interpolateRdYlGn,
+        d3.interpolateRdYlBu,
+        d3.interpolateRdGy,
+        d3.interpolateRdBu,
+        d3.interpolatePuOr,
+        d3.interpolatePiYG,
+        d3.interpolatePRGn,
+        d3.interpolateBrBG,
+      ];
+
+      var measurements = [
+        ["Humidity", "%", "weather_station.humidity"],
+        ["Outdoor Temperature", "&#176;", "weather_station.outdoor_temperature"],
+        ["Indoor Temperature", "&#176;", "hvac.temperature"],
+        ["Energy", "kW/h", "smart_meter.kw_delivered"],
+        ["CO2", "ppm", "ieq.co2"],
+        ["PM 2.5", "ppm", "ieq.pm"],
+        ["Wind Speed", "m/s", "weather_station.wind.speed"],
+        ["VOC", "ppm", "ieq.voc"],
+        ["Solar Radiation", "W/m<sup>2</sup>", "weather_station.solar.radiation"]
+      ];
+
+			var mouseX = 0, mouseY = 0,
+
+			windowHalfX = window.innerWidth / 2,
+			windowHalfY = window.innerHeight / 2,
+
+			camera, scene, renderer;
+
+      loader.load( '/static/fonts/droid_sans_regular.typeface.json', function ( f ) {
+        font = f;
+        init();
+  			animate();
+      });
+
+			function init() {
+
+				var i, container;
+
+        var color_scale = d3.scaleLinear().range([0, 1]);
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				camera = new THREE.PerspectiveCamera( 33, window.innerWidth / window.innerHeight, 1, 10000 );
+				camera.position.z = 200;
+
+				scene = new THREE.Scene();
+
+        var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+        scene.add( directionalLight );
+        var alight = new THREE.AmbientLight( 0xFFFFFF ); // soft white light
+        scene.add( alight );
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+
+        dimensions = {x: 5, y: 4, z: 5};
+        var points = [];
+        for(var x = 0; x < dimensions.x; x++){
+          for(var y = 0; y < dimensions.y; y++){
+            for(var z = 0; z < dimensions.z; z++){
+              points.push({x: x*5, y: y*5, z: z*5});
+            }
+          }
+        }
+
+        var dx = 50,
+          dy = 40;
+
+        var layout = [
+          [dx, dy, 0], [0, dy, 0], [-dx, dy, 0],
+          [dx, 0, 0], [0, 0, 0], [-dx, 0, 0],
+          [dx, -dy, 0], [0, -dy, 0], [-dx, -dy, 0],
+        ];
+
+				for ( i = 0; i < measurements.length; i ++ ) {
+          var color_pallette = hues[Math.floor(Math.random()*hues.length)];
+					var m = measurements[ i ];
+          var p = layout[i];
+          var data = measurement_data[m[2]].results[0].series[0].values;
+          var minv = d3.min(data, function(d){ return d[1]; });
+          var maxv = d3.max(data, function(d){ return d[1]; });
+          color_scale.domain([minv, maxv]);
+          var group = new THREE.Group();
+          var text = new THREE.TextGeometry( m[0], {
+        		font: font,
+        		size: 1,
+        		height: 0,
+        		curveSegments: 12,
+        	} );
+
+          var t_mesh = new THREE.MeshPhongMaterial( {color: 0xffffff, lights: true} );
+          var t_obj = new THREE.Mesh(text, t_mesh);
+          t_obj.position.x = 0+p[0];
+          t_obj.position.y = 18+p[1];
+          t_obj.position.z = 20+p[2];
+          group.add(t_obj);
+          for(var point = 0; point < points.length; point++){
+            var val = data[point+20][1];
+            var mesh = new THREE.MeshPhongMaterial( {color: color_pallette(color_scale(val)), lights: true} );
+            var sg = new THREE.SphereGeometry(1, 5);
+            var sphere = new THREE.Mesh(sg, mesh);
+            sphere.position.set(points[point].x+(p[0]), points[point].y+(p[1]), points[point].z+(p[2]));
+            group.add( sphere );
+          }
+          scene.add(group);
+				}
+
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+				document.addEventListener( 'touchmove', onDocumentTouchMove, false );
+
+				//
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			function onWindowResize() {
+
+				windowHalfX = window.innerWidth / 2;
+				windowHalfY = window.innerHeight / 2;
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			//
+
+			function onDocumentMouseMove(event) {
+
+				mouseX = event.clientX - windowHalfX;
+				mouseY = event.clientY - windowHalfY;
+			}
+
+			function onDocumentTouchStart( event ) {
+
+				if ( event.touches.length > 1 ) {
+
+					event.preventDefault();
+
+					mouseX = event.touches[ 0 ].pageX - windowHalfX;
+					mouseY = event.touches[ 0 ].pageY - windowHalfY;
+
+				}
+
+			}
+
+			function onDocumentTouchMove( event ) {
+
+				if ( event.touches.length == 1 ) {
+
+					event.preventDefault();
+
+					mouseX = event.touches[ 0 ].pageX - windowHalfX;
+					mouseY = event.touches[ 0 ].pageY - windowHalfY;
+
+				}
+
+			}
+
+			//
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				render();
+
+			}
+
+			function render() {
+
+				camera.position.x += ( mouseX - camera.position.x ) * .05;
+				camera.position.y += ( - mouseY + 200 - camera.position.y ) * .05;
+
+				camera.lookAt( scene.position );
+
+				var time = Date.now() * 0.0015;
+
+				for ( var i = 0; i < scene.children.length; i ++ ) {
+
+					var object = scene.children[ i ];
+					if ( object instanceof THREE.Line ) object.rotation.y = time * ( i % 2 ? 1 : -1 );
+
+				}
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+	</body>
+</html>

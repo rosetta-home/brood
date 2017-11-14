@@ -34,9 +34,21 @@ defmodule Brood.HTTPRouter do
     |> send_resp(200, doc)
   end
 
+  get "/connectory_3d" do
+    data =
+      @measurements |> Enum.reduce(%{}, fn(m, acc) ->
+        acc |> Map.put(m, m |> get_data())
+      end)
+    template_dir = :code.priv_dir(:brood)
+    doc = EEx.eval_file("#{template_dir}/connectory_3d.html.eex", [data: data])
+    conn
+    |> put_resp_header("content-type", "text/html; charset=utf-8")
+    |> send_resp(200, doc)
+  end
+
   def get_data(measurement) do
     node = "00000000fdf4ffe2"
-    "SELECT MEAN(value) as value FROM \"brood\".\"realtime\".\"#{measurement}\" WHERE time > now()-30d GROUP BY time(6h) fill(0)"
+    "SELECT MEAN(value) as value FROM \"brood\".\"realtime\".\"#{measurement}\" WHERE time > now()-30d GROUP BY time(6h) fill(previous)"
     |> Brood.DB.InfluxDB.query()
   end
 
