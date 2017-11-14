@@ -71,7 +71,7 @@
         .range([0, width]);
       var v_top = (height - viz_height)/2;
       var y = d3.scaleLinear()
-        .range([v_top, v_top+viz_height]);
+        .range([v_top+viz_height, v_top]);
       var x_range = 120,
         bucket_size = 6, //hours
         y_range = 25,
