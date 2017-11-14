@@ -51,6 +51,12 @@
         d3.interpolatePiYG,
         d3.interpolatePRGn,
         d3.interpolateBrBG,
+        d3.interpolateBlues,
+        d3.interpolateGreens,
+        d3.interpolateGreys,
+        d3.interpolateOranges,
+        d3.interpolatePurples,
+        d3.interpolateReds,
       ]
       var measurements = [
         ["Humidity", "%", "weather_station.humidity"],

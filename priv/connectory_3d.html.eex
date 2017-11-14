@@ -23,27 +23,12 @@
       var loader = new THREE.FontLoader();
       var font;
       var hues = [
-        d3.interpolateBuGn,
-        d3.interpolateBuPu,
-        d3.interpolateGnBu,
-        d3.interpolateOrRd,
-        d3.interpolatePuBuGn,
-        d3.interpolatePuBu,
-        d3.interpolatePuRd,
-        d3.interpolateRdPu,
-        d3.interpolateYlGnBu,
-        d3.interpolateYlGn,
-        d3.interpolateYlOrBr,
-        d3.interpolateYlOrRd,
-        d3.interpolateSpectral,
-        d3.interpolateRdYlGn,
-        d3.interpolateRdYlBu,
-        d3.interpolateRdGy,
-        d3.interpolateRdBu,
-        d3.interpolatePuOr,
-        d3.interpolatePiYG,
-        d3.interpolatePRGn,
-        d3.interpolateBrBG,
+        d3.interpolateBlues,
+        d3.interpolateGreens,
+        d3.interpolateGreys,
+        d3.interpolateOranges,
+        d3.interpolatePurples,
+        d3.interpolateReds
       ];
 
       var measurements = [
