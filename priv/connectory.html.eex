@@ -201,6 +201,8 @@
           .attr("fill", color_pallette(.4))
           .attr("dy", -20)
           .attr("opacity", .5);
+
+        draw_stat_lines(minv, medv, maxv);
         title.innerHTML = measurement[0];
         current.innerHTML = (data[data.length-1][1] ? data[data.length-1][1].toFixed(4) : 0.0000) + " " + measurement[1];
         bg.style.backgroundColor = color_pallette(1);
@@ -213,6 +215,30 @@
         min.innerHTML = "MIN: " + minv.toFixed(4);
         median.innerHTML = "MED: " + medv.toFixed(4);
         max.innerHTML = "MAX: " + maxv.toFixed(4);
+      }
+
+      function draw_stat_lines(minv, medv, maxv){
+        var min_path = [[0, minv], [120, minv]];
+        var med_path = [[0, medv], [120, medv]];
+        var max_path = [[0, maxv], [120, maxv]];
+        svg.append("path")
+          .attr("d", line(min_path))
+          .attr("stroke", color_pallette(.2))
+          .attr("stroke-width", "1")
+          .attr("stroke-dasharray", line_dash[0] + " " + line_dash[1])
+          .attr("fill", "none");
+          svg.append("path")
+            .attr("d", line(med_path))
+            .attr("stroke", color_pallette(.5))
+            .attr("stroke-width", "1")
+            .attr("stroke-dasharray", line_dash[0] + " " + line_dash[1])
+            .attr("fill", "none");
+          svg.append("path")
+            .attr("d", line(max_path))
+            .attr("stroke", color_pallette(.8))
+            .attr("stroke-width", "1")
+            .attr("stroke-dasharray", line_dash[0] + " " + line_dash[1])
+            .attr("fill", "none");
       }
 
       function random_data(){
