@@ -178,9 +178,7 @@
         var measurement = measurements[Math.floor(Math.random()*measurements.length)];
         data = measurement_data[measurement[2]].results[0].series[0].values;
         for(var i = 0; i < data.length; i++){
-          console.log(data[i]);
           data[i] = [i, data[i][1]];
-          console.log(data[i]);
         }
         var minv = d3.min(data, function(d){return d[1];});
         var maxv = d3.max(data, function(d){return d[1];});
