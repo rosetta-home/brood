@@ -36,7 +36,7 @@ defmodule Brood.HTTPRouter do
 
   def get_data(measurement) do
     node = "00000000fdf4ffe2"
-    "SELECT MEDIAN(value) as value FROM \"brood\".\"realtime\".\"#{measurement}\" WHERE time > now()-30d GROUP BY time(6h) fill(null)"
+    "SELECT MEDIAN(value) as value FROM \"brood\".\"realtime\".\"#{measurement}\" WHERE time > now()-30d GROUP BY time(6h) fill(0)"
     |> Brood.DB.InfluxDB.query()
   end
 
