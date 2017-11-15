@@ -10,9 +10,18 @@
 				margin: 0px;
 				overflow: hidden;
 			}
+      #follow{
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 1px;
+        height: 1px;
+        background-color: rgba(255, 255, 255, .2)
+      }
 		</style>
 	</head>
 	<body>
+    <div id="follow"></div>
 		<script src="/static/js/three.min.js"></script>
     <script src="/static/js/d3-4.11.0.min.js"></script>
     <script src="/static/js/d3-scale-chromatic.min.js"></script>
@@ -43,12 +52,17 @@
         ["Solar Radiation", "W/m<sup>2</sup>", "weather_station.solar.radiation"]
       ];
 
-			var mouseX = 0, mouseY = 0,
+			var mouseX = 0,
+        mouseY = 0,
+			  windowHalfX = window.innerWidth / 2,
+			  windowHalfY = window.innerHeight / 2,
+			  camera,
+        scene,
+        renderer;
 
-			windowHalfX = window.innerWidth / 2,
-			windowHalfY = window.innerHeight / 2,
-
-			camera, scene, renderer;
+      var follow = document.getElementById("follow");
+        follow.style.top = windowHalfY+"px";
+        follow.style.left = windowHalfX+"px";
 
       loader.load( '/static/fonts/droid_sans_regular.typeface.json', function ( f ) {
         font = f;
@@ -65,17 +79,19 @@
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
 
-				camera = new THREE.PerspectiveCamera( 33, window.innerWidth / window.innerHeight, 1, 10000 );
+				camera = new THREE.PerspectiveCamera( 21, window.innerWidth / window.innerHeight, 1, 1000 );
 				camera.position.z = 200;
 
 				scene = new THREE.Scene();
+        scene.background = new THREE.Color( 0x111111 );
+				scene.fog = new THREE.Fog( 0x111111, 200, 800 );
 
         var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
         scene.add( directionalLight );
         var alight = new THREE.AmbientLight( 0xFFFFFF ); // soft white light
         scene.add( alight );
 
-				renderer = new THREE.WebGLRenderer();
+				renderer = new THREE.WebGLRenderer({ antialias: true });
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				container.appendChild( renderer.domElement );
@@ -99,6 +115,15 @@
           [dx, -dy, 0], [0, -dy, 0], [-dx, -dy, 0],
         ];
 
+        var text_material = new THREE.MeshPhongMaterial( {color: 0xffffff, lights: true} );
+        var line_material = new THREE.LineDashedMaterial( {
+          color: 0x999999,
+          linewidth: 1,
+          scale: 1,
+          dashSize: .3,
+          gapSize: .3,
+        });
+
 				for ( i = 0; i < measurements.length; i ++ ) {
           var color_pallette = hues[Math.floor(Math.random()*hues.length)];
 					var m = measurements[ i ];
@@ -108,39 +133,52 @@
           var maxv = d3.max(data, function(d){ return d[1]; });
           color_scale.domain([minv, maxv]);
           var group = new THREE.Group();
-          var text = new THREE.TextGeometry( m[0], {
+          var text = new THREE.TextGeometry(m[0], {
         		font: font,
         		size: 1,
         		height: 0,
-        		curveSegments: 12,
-        	} );
-
-          var t_mesh = new THREE.MeshPhongMaterial( {color: 0xffffff, lights: true} );
-          var t_obj = new THREE.Mesh(text, t_mesh);
+        		curveSegments: 5,
+        	});
+          var geometry = new THREE.Geometry();
+          var t_obj = new THREE.Mesh(text, text_material);
           t_obj.position.x = 0+p[0];
           t_obj.position.y = 18+p[1];
           t_obj.position.z = 20+p[2];
           group.add(t_obj);
           for(var point = 0; point < points.length; point++){
             var val = data[point+20][1];
-            var mesh = new THREE.MeshPhongMaterial( {color: color_pallette(color_scale(val)), lights: true} );
-            var sg = new THREE.SphereGeometry(1, 5);
-            var sphere = new THREE.Mesh(sg, mesh);
-            sphere.position.set(points[point].x+(p[0]), points[point].y+(p[1]), points[point].z+(p[2]));
-            group.add( sphere );
+            var sphere_material = new THREE.MeshPhongMaterial( {color: color_pallette(color_scale(val)), lights: true} );
+            var x = points[point].x + p[0];
+            var y = points[point].y + p[1];
+            var z = points[point].z + p[2];
+            var sg = new THREE.SphereGeometry(1, 12);
+            var sphere = new THREE.Mesh(sg, sphere_material);
+            sphere.position.set(x, y, z);
+            group.add(sphere);
+            geometry.vertices.push(new THREE.Vector3(x, y, z));
           }
+          geometry.computeLineDistances();
+          var line = new THREE.Line(geometry, line_material);
+          group.add(line);
           scene.add(group);
 				}
 
 				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 				document.addEventListener( 'touchstart', onDocumentTouchStart, false );
 				document.addEventListener( 'touchmove', onDocumentTouchMove, false );
-
-				//
-
 				window.addEventListener( 'resize', onWindowResize, false );
-
+        setInterval(transition, 8000);
 			}
+
+      function transition(){
+        var x = (Math.random()*windowHalfX)+(windowHalfX/2);
+        var y = (Math.random()*windowHalfY)+(windowHalfY/2);
+        d3.select("#follow")
+          .transition()
+          .duration(6000)
+          .style("top", y+"px")
+          .style("left", x+"px")
+      }
 
 			function onWindowResize() {
 
@@ -199,20 +237,13 @@
 			}
 
 			function render() {
+        var x = parseInt(follow.style.left) - windowHalfX;
+        var y = parseInt(follow.style.top) - windowHalfY;
 
-				camera.position.x += ( mouseX - camera.position.x ) * .05;
-				camera.position.y += ( - mouseY + 200 - camera.position.y ) * .05;
+				camera.position.x += ( x - camera.position.x ) * .05;
+				camera.position.y += ( - y + 200 - camera.position.y ) * .05;
 
 				camera.lookAt( scene.position );
-
-				var time = Date.now() * 0.0015;
-
-				for ( var i = 0; i < scene.children.length; i ++ ) {
-
-					var object = scene.children[ i ];
-					if ( object instanceof THREE.Line ) object.rotation.y = time * ( i % 2 ? 1 : -1 );
-
-				}
 
 				renderer.render( scene, camera );
 

@@ -46,6 +46,14 @@ defmodule Brood.HTTPRouter do
     |> send_resp(200, doc)
   end
 
+  get "/visualization" do
+    template_dir = :code.priv_dir(:brood)
+    doc = EEx.eval_file("#{template_dir}/visualizations.html.eex", [])
+    conn
+    |> put_resp_header("content-type", "text/html; charset=utf-8")
+    |> send_resp(200, doc)
+  end
+
   def get_data(measurement) do
     node = "00000000fdf4ffe2"
     "SELECT MEAN(value) as value FROM \"brood\".\"realtime\".\"#{measurement}\" WHERE time > now()-30d GROUP BY time(6h) fill(previous)"
