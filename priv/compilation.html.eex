@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <link rel="stylesheet" href="./static/css/connectory_styles.css"></link>
+    <script src="/static/js/three.min.js"></script>
+    <script src="./static/js/d3-4.11.0.min.js"></script>
+    <script src="./static/js/d3-scale-chromatic.min.js"></script>
+    <script src="./static/js/d3-selection.min.js"></script>
+    <script src="./static/js/d3-selection-multi.min.js"></script>
+    <script src="./static/js/d3-transition.min.js"></script>
+    <script src="./static/js/d3-axis.min.js"></script>
+    <script src="./static/js/d3-scale.min.js"></script>
+    <title>Rosetta Home</title>
+  </head>
+  <body>
+    <div id="threed"></div>
+    <div id="animate">
+      <div id="text">
+        <h1 id="title">Humidity</h1>
+        <h2 id="current">68%</h2>
+        <ul id="values">
+          <li class="hist" id="min">min: 35</li>
+          <li class="hist" id="median">med: 37.3453</li>
+          <li class="hist" id="max">max: 39.87986</li>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var measurement_data = <%= Poison.encode!(data) %>;
+      var hues = [
+          d3.interpolateBuGn,
+          d3.interpolateBuPu,
+          d3.interpolateGnBu,
+          d3.interpolateOrRd,
+          d3.interpolatePuBuGn,
+          d3.interpolatePuBu,
+          d3.interpolatePuRd,
+          d3.interpolateRdPu,
+          d3.interpolateYlGnBu,
+          d3.interpolateYlGn,
+          d3.interpolateYlOrBr,
+          d3.interpolateYlOrRd,
+          d3.interpolateSpectral,
+          d3.interpolateRdYlGn,
+          d3.interpolateRdYlBu,
+          d3.interpolateRdGy,
+          d3.interpolateRdBu,
+          d3.interpolatePuOr,
+          d3.interpolatePiYG,
+          d3.interpolatePRGn,
+          d3.interpolateBrBG,
+          d3.interpolateBlues,
+          d3.interpolateGreens,
+          d3.interpolateGreys,
+          d3.interpolateOranges,
+          d3.interpolatePurples,
+          d3.interpolateReds,
+        ],
+        measurements = [
+          ["Humidity", "%", "weather_station.humidity"],
+          ["Outdoor Temperature", "&#176;", "weather_station.outdoor_temperature"],
+          ["Indoor Temperature", "&#176;", "hvac.temperature"],
+          ["Energy", "kW/h", "smart_meter.kw_delivered"],
+          ["CO2", "ppm", "ieq.co2"],
+          ["PM 2.5", "ppm", "ieq.pm"],
+          ["Wind Speed", "m/s", "weather_station.wind.speed"],
+          ["VOC", "ppm", "ieq.voc"],
+          ["Solar Radiation", "W/m<sup>2</sup>", "weather_station.solar.radiation"]
+        ],
+        loader = new THREE.FontLoader(),
+        font = null,
+        viz_height = 250,
+        measurement = null,
+        width = document.getElementById("animate").clientWidth,
+        height = document.getElementById("animate").clientHeight,
+        v_top = (height - viz_height)/2,
+        x = d3.scaleLinear().range([0, width]);
+        y = d3.scaleLinear().range([v_top+viz_height, v_top]),
+        x_range = 120,
+        bucket_size = 6, //hours
+        y_range = 25,
+        today = new Date(),
+        start_date = today.getTime() - (x_range*bucket_size*60*60*1000),
+        data = null,
+        current_line = 0,
+        total_lines = 100,
+        last = 0,
+        x_step = .03, //bucket_size*60*1000,
+        y_step = .03,
+        paused = false,
+        pause_duration = 3000,
+        point_dir = {x: 1, y: -1},
+        line_dash = [1,3],
+        color_pallette = hues[Math.floor(Math.random()*hues.length)],
+        windowHalfX = (width / 2),
+			  windowHalfY = (height / 2),
+			  camera = null,
+        camera_x = 0,
+        camera_dir = 1,
+        camera_y = 0,
+        camera_y_dir = 1,
+        scene = null,
+        renderer = null,
+        points = [],
+        current_point = 20;
+        color_scale = d3.scaleLinear().range([0, 1]),
+        bg = document.getElementById("animate"),
+        title = document.getElementById("title"),
+        current = document.getElementById("current"),
+        hist = document.getElementsByClassName("hist"),
+        min = document.getElementById("min"),
+        median = document.getElementById("median"),
+        max = document.getElementById("max"),
+        threed = document.getElementById("threed"),
+        last_ts = 0,
+        last_camera_ts = 0,
+        group = null,
+        svg = d3.select("#animate")
+          .append("svg")
+          .attrs({
+            width: width,
+            height: height,
+            id: "visualization",
+            xmlns: "http://www.w3.org/2000/svg"
+          }),
+        x_domain = d3.scaleTime()
+          .domain([new Date(start_date), new Date(start_date+(x_range*bucket_size*60*60*1000))])
+          .range([0, width]),
+        x_axis = d3.axisBottom(x_domain)
+          .ticks(10),
+        line = d3.line()
+          .x(function(d) { return x(d[0]); })
+          .y(function(d) { return y(d[1]); })
+          .curve(d3.curveBundle),
+        text_material = new THREE.MeshPhongMaterial( {color: 0xffffff, lights: true} );
+        line_material = new THREE.LineDashedMaterial( {
+            color: 0x999999,
+            linewidth: 1,
+            scale: 1,
+            dashSize: .3,
+            gapSize: .3,
+          });
+
+      x.domain([0, x_range]);
+      y.domain([0, y_range]);
+
+      function init_3d(){
+
+        var w = threed.clientWidth,
+          h = threed.clientHeight;
+
+        camera = new THREE.PerspectiveCamera( 21, w / h, 1, 1000 );
+				camera.position.z = 40;
+
+        scene = new THREE.Scene();
+
+        var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+        scene.add( directionalLight );
+        var alight = new THREE.AmbientLight( 0xFFFFFF );
+        scene.add( alight );
+
+				renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( w, h );
+				threed.appendChild( renderer.domElement );
+
+        dimensions = {x: 5, y: 4, z: 5};
+        for(var x = 0; x < dimensions.x; x++){
+          for(var y = 0; y < dimensions.y; y++){
+            for(var z = 0; z < dimensions.z; z++){
+              points.push({x: x*5, y: y*5, z: z*5});
+            }
+          }
+        }
+      }
+
+      function render_slide(){
+        var d_p = [];
+        for(var d = 0; d < data.length; d++){
+          d_p[d] = [data[d][0] + ((current_line*x_step)*point_dir.x), data[d][1] + ((current_line*y_step)*point_dir.y)];
+        }
+        var path = svg.append("path")
+          .attr("d", line(d_p))
+          .attr("stroke", color_pallette((current_line/total_lines)))
+          .attr("stroke-width", "1")
+          .attr("stroke-dasharray", line_dash[0] + " " + line_dash[1])
+          .attr("fill", "none");
+      }
+
+      function animate(ts){
+        render_slide();
+        if(current_line < (total_lines-1)){
+          current_line++;
+        }else{
+          paused = true;
+        }
+        if(paused){
+          setTimeout(function(){
+            set_measurement();
+            animate_line();
+          }, pause_duration);
+        }else{
+          requestAnimationFrame(animate);
+        }
+      }
+
+      function animate_cube(ts){
+        if(!group){
+          group = new THREE.Group();
+          scene.add(group);
+        }
+        if(ts-last_ts > 115){
+          last_ts = ts;
+          render_cube();
+        }
+        render_camera();
+        requestAnimationFrame(animate_cube);
+      }
+
+      function animate_line(){
+        var path = svg.append("path")
+          .attr("d", line(data))
+          .attr("stroke", color_pallette(0))
+          .attr("stroke-width", "1")
+          .attr("fill", "none");
+        var tl = path.node().getTotalLength();
+        path
+          .attr("stroke-dasharray", tl + " " + tl)
+          .attr("stroke-dashoffset", tl)
+          .transition()
+            .duration(10000)
+            .ease(d3.easeLinear)
+            .attr("stroke-dashoffset", 0)
+            .on("end", function(){
+              requestAnimationFrame(animate);
+            })
+      }
+
+      function render_cube(){
+        if((current_point < points.length) ){
+          var val = data[current_point][1];
+          var sphere_material = new THREE.MeshPhongMaterial( {color: color_pallette(color_scale(val)), lights: true} );
+          var x = points[current_point].x-20;
+          var y = points[current_point].y-10;
+          var z = points[current_point].z;
+          var sg = new THREE.SphereGeometry(1, 12, 12);
+          var sphere = new THREE.Mesh(sg, sphere_material);
+          sphere.position.set(x, y, z);
+          group.add(sphere);
+          current_point++;
+        }
+      }
+
+      function render_camera(){
+        camera.position.x += ( camera_x - camera.position.x ) * .001;
+				camera.position.y += ( camera_y - camera.position.y ) * .001;
+				camera.lookAt( scene.position );
+				renderer.render( scene, camera );
+      }
+
+      function set_measurement(){
+        svg.selectAll("*").remove();
+        scene.remove(group);
+        group = null;
+        measurement = measurements[Math.floor(Math.random()*measurements.length)];
+        data = measurement_data[measurement[2]].results[0].series[0].values;
+        for(var i = 0; i < data.length; i++){
+          data[i] = [i, data[i][1]];
+        }
+        var minv = d3.min(data, function(d){return d[1];});
+        var maxv = d3.max(data, function(d){return d[1];});
+        var medv = d3.median(data, function(d){return d[1];});
+        y.domain([minv, maxv]);
+        color_scale.domain([minv, maxv]);
+        y_step = (maxv-minv)/viz_height;
+        current_line = 0;
+        point_dir = {x: Math.random() >= .5 ? 1 : -1, y: Math.random() >= .5 ? 1 : -1};
+        line_dash = [Math.ceil(Math.random()*3), Math.ceil(Math.random()*5)]
+        paused = false;
+        color_pallette = hues[Math.floor(Math.random()*hues.length)];
+        camera_x = (Math.random()*200)-100;
+        camera_y = (Math.random()*100)-50;
+        scene.fog = new THREE.Fog( color_pallette(1), 10, 300 );
+        var g = svg.append("g");
+        g.append("g")
+          .attr("transform", "translate(0," + (height-100) + ")")
+          .call(x_axis);
+        g.selectAll(".domain")
+          .attr("stroke", color_pallette(.5))
+          .attr("opacity", .5)
+        g.selectAll(".tick text")
+          .attr("fill", color_pallette(.4))
+          .attr("dy", -20)
+          .attr("opacity", .5);
+
+        draw_stat_lines(minv, medv, maxv);
+        title.innerHTML = measurement[0];
+        current.innerHTML = (data[data.length-1][1] ? data[data.length-1][1].toFixed(4) : 0.0000) + " " + measurement[1];
+        threed.style.backgroundColor = color_pallette(.1);
+        bg.style.backgroundColor = color_pallette(1);
+        bg.style.display = "block";
+        title.style.color = color_pallette(.5);
+        current.style.color = color_pallette(.3);
+        min.style.color = color_pallette(.5);
+        median.style.color = color_pallette(.5);
+        max.style.color = color_pallette(.5);
+        min.innerHTML = "MIN: " + minv.toFixed(4);
+        median.innerHTML = "MED: " + medv.toFixed(4);
+        max.innerHTML = "MAX: " + maxv.toFixed(4);
+        current_point = 20;
+      }
+
+      function draw_stat_lines(minv, medv, maxv){
+        var min_path = [[0, minv], [120, minv]];
+        var med_path = [[0, medv], [120, medv]];
+        var max_path = [[0, maxv], [120, maxv]];
+        svg.append("path")
+          .attr("d", line(min_path))
+          .attr("stroke", color_pallette(.2))
+          .attr("stroke-width", "1")
+          .attr("stroke-dasharray", line_dash[0] + " " + line_dash[1])
+          .attr("fill", "none");
+          svg.append("path")
+            .attr("d", line(med_path))
+            .attr("stroke", color_pallette(.5))
+            .attr("stroke-width", "1")
+            .attr("stroke-dasharray", line_dash[0] + " " + line_dash[1])
+            .attr("fill", "none");
+          svg.append("path")
+            .attr("d", line(max_path))
+            .attr("stroke", color_pallette(.8))
+            .attr("stroke-width", "1")
+            .attr("stroke-dasharray", line_dash[0] + " " + line_dash[1])
+            .attr("fill", "none");
+      }
+      init_3d();
+      set_measurement();
+      animate_line();
+      requestAnimationFrame(animate_cube);
+    </script>
+  </body>
+</html>

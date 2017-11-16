@@ -1,6 +1,7 @@
 defmodule Brood.Application do
   use Application
   alias Brood.Resource.Account
+  require Logger
 
   @mongo_database Application.get_env(:brood, :mongo_database)
   @mongo_host Application.get_env(:brood, :mongo_host)
@@ -11,7 +12,7 @@ defmodule Brood.Application do
     import Supervisor.Spec, warn: false
     children = [
       Brood.DB.InfluxDB.child_spec,
-      Plug.Adapters.Cowboy.child_spec(:http, Brood.HTTPRouter, [], [port: @http_port, dispatch: dispatch]),
+      Plug.Adapters.Cowboy.child_spec(:http, Brood.HTTPRouter, [], [port: @http_port, dispatch: dispatch()]),
       supervisor(Task.Supervisor, [[name: Brood.TaskSupervisor]]),
       worker(Mongo, [[name: :mongo_brood, hostname: @mongo_host, database: @mongo_database, pool: DBConnection.Poolboy]]),
       worker(Brood.SatoriPublisher, []),

@@ -1,4 +1,4 @@
-FROM elixir:1.4.5
+FROM elixir:1.5.1
 
 RUN mkdir /app
 WORKDIR /app

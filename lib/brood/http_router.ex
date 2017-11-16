@@ -22,6 +22,18 @@ defmodule Brood.HTTPRouter do
   forward "/account", to: Account.Router
   forward "/data", to: Data.Router
 
+  get "/compilation" do
+    data =
+      @measurements |> Enum.reduce(%{}, fn(m, acc) ->
+        acc |> Map.put(m, m |> get_data())
+      end)
+    template_dir = :code.priv_dir(:brood)
+    doc = EEx.eval_file("#{template_dir}/compilation.html.eex", [data: data])
+    conn
+    |> put_resp_header("content-type", "text/html; charset=utf-8")
+    |> send_resp(200, doc)
+  end
+
   get "/connectory" do
     data =
       @measurements |> Enum.reduce(%{}, fn(m, acc) ->

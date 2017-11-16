@@ -1,5 +1,7 @@
 use Mix.Config
+require Logger
 
+Logger.info "#{Mix.env}.exs"
 config :brood,
   influx_database: "brood",
   mongo_host: "mongodb",

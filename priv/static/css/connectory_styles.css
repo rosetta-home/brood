@@ -7,7 +7,7 @@ h1{
   position: absolute;
   margin: 0;
   padding: 0;
-  top: 100px;
+  top: 30px;
   right: 60px;
   font-size: 78px;
 }
@@ -16,7 +16,7 @@ h2{
   position: absolute;
   margin: 0;
   padding: 0;
-  top: 190px;
+  top: 120px;
   right: 60px;
   font-size: 48px;
 }
@@ -27,7 +27,22 @@ h2{
 
 .tick line{
   stroke: rgba(255, 255, 255, 0);
-  stroke-width: 4px;
+}
+
+#animate{
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 50%;
+}
+
+#threed{
+  position: absolute;
+  top: 50%;
+  left: 0px;
+  width: 100%;
+  height: 50%;
 }
 
 #text{
