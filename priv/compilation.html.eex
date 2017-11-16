@@ -213,7 +213,7 @@
           group = new THREE.Group();
           scene.add(group);
         }
-        if(ts-last_ts > 115){
+        if(ts-last_ts > 100){
           last_ts = ts;
           render_cube();
         }
