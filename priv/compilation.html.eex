@@ -16,7 +16,6 @@
     <title>Rosetta Home</title>
   </head>
   <body>
-    <div id="threed"></div>
     <div id="animate">
       <div id="text">
         <h1 id="title">Humidity</h1>
@@ -27,6 +26,7 @@
           <li class="hist" id="max">max: 39.87986</li>
         </div>
       </div>
+      <div id="threed"></div>
     </div>
 
     <script>
@@ -62,14 +62,14 @@
         ],
         measurements = [
           ["Humidity", "%", "weather_station.humidity"],
-          ["Outdoor Temperature", "&#176;", "weather_station.outdoor_temperature"],
-          ["Indoor Temperature", "&#176;", "hvac.temperature"],
-          ["Energy", "kW/h", "smart_meter.kw_delivered"],
-          ["CO2", "ppm", "ieq.co2"],
-          ["PM 2.5", "ppm", "ieq.pm"],
-          ["Wind Speed", "m/s", "weather_station.wind.speed"],
-          ["VOC", "ppm", "ieq.voc"],
-          ["Solar Radiation", "W/m<sup>2</sup>", "weather_station.solar.radiation"]
+          ["Outdoor Temperature", "°", "weather_station.outdoor_temperature"],
+          ["Indoor Temperature", "°", "hvac.temperature"],
+          ["Energy", " kW/h", "smart_meter.kw_delivered"],
+          ["CO2", " ppm", "ieq.co2"],
+          ["PM 2.5", " ppm", "ieq.pm"],
+          ["Wind Speed", " m/s", "weather_station.wind.speed"],
+          ["VOC", " ppm", "ieq.voc"],
+          ["Solar Radiation", " W/m₂", "weather_station.solar.radiation"]
         ],
         loader = new THREE.FontLoader(),
         font = null,
@@ -115,10 +115,17 @@
         min = document.getElementById("min"),
         median = document.getElementById("median"),
         max = document.getElementById("max"),
-        threed = document.getElementById("threed"),
         last_ts = 0,
         last_camera_ts = 0,
         group = null,
+        legend_svg = d3.select("#threed")
+          .append('svg')
+          .attrs({
+            width: width,
+            height: 60,
+            id: "legend",
+            xmlns: "http://www.w3.org/2000/svg"
+          })
         svg = d3.select("#animate")
           .append("svg")
           .attrs({
@@ -287,7 +294,7 @@
         scene.fog = new THREE.Fog( color_pallette(1), 10, 300 );
         var g = svg.append("g");
         g.append("g")
-          .attr("transform", "translate(0," + (height-100) + ")")
+          .attr("transform", "translate(0," + (height-60) + ")")
           .call(x_axis);
         g.selectAll(".domain")
           .attr("stroke", color_pallette(.5))
@@ -298,8 +305,9 @@
           .attr("opacity", .5);
 
         draw_stat_lines(minv, medv, maxv);
+        draw_color_legend();
         title.innerHTML = measurement[0];
-        current.innerHTML = (data[data.length-1][1] ? data[data.length-1][1].toFixed(4) : 0.0000) + " " + measurement[1];
+        current.innerHTML = (data[data.length-1][1] ? data[data.length-1][1].toFixed(4) : 0.0000) + measurement[1];
         threed.style.backgroundColor = color_pallette(.1);
         bg.style.backgroundColor = color_pallette(1);
         bg.style.display = "block";
@@ -337,6 +345,63 @@
             .attr("stroke-dasharray", line_dash[0] + " " + line_dash[1])
             .attr("fill", "none");
       }
+
+      function draw_color_legend(){
+        legend_svg.selectAll("*").remove();
+        var grad = legend_svg.append('defs')
+          .append('linearGradient')
+          .attr('id', 'grad')
+          .attr('x1', '0%')
+          .attr('x2', '100%')
+          .attr('y1', '0%')
+          .attr('y2', '0%');
+
+        var legend_data = [];
+        for(var i = 0; i < 10; i++){
+          var p = Math.floor((data.length/10)*i);
+          legend_data.push({color: color_pallette(i/10), label: data[p][1].toFixed(2) + measurement[1]})
+        }
+        grad.selectAll('stop')
+          .data(legend_data)
+          .enter()
+          .append('stop')
+          .attr('offset', function(d, i) {
+            return (i / 10) * 100 + '%';
+          })
+          .style('stop-color', function(d) {
+            return d.color;
+          })
+
+        legend_svg.append('rect')
+          .attr('x', 0)
+          .attr('y', 0)
+          .attr('width', width)
+          .attr('height', 30)
+          .attr('fill', 'url(#grad)');
+
+        var g = legend_svg.append('g')
+          .selectAll('.label')
+          .data(legend_data)
+          .enter();
+
+        g.append('text')
+          .text(function(d){
+            return d.label;
+          })
+          .attr('transform',function(d,i){
+            return 'translate(' + (xPos(i) + 2) + ',' + 45 + ')';
+          })
+          .attr("fill", function(d, i){
+            return color_pallette(1);
+          })
+          .attr("font-family", "sans-serif")
+          .attr("font-size", "12");
+      }
+
+      function xPos(i){
+        return (width / 10) * i;
+      }
+
       init_3d();
       set_measurement();
       animate_line();
