@@ -305,7 +305,7 @@
           .attr("opacity", .5);
 
         draw_stat_lines(minv, medv, maxv);
-        draw_color_legend();
+        draw_color_legend(minv, medv, maxv);
         title.innerHTML = measurement[0];
         current.innerHTML = (data[data.length-1][1] ? data[data.length-1][1].toFixed(4) : 0.0000) + measurement[1];
         threed.style.backgroundColor = color_pallette(.1);
@@ -346,7 +346,7 @@
             .attr("fill", "none");
       }
 
-      function draw_color_legend(){
+      function draw_color_legend(minv, mdev, maxv){
         legend_svg.selectAll("*").remove();
         var grad = legend_svg.append('defs')
           .append('linearGradient')
@@ -357,9 +357,11 @@
           .attr('y2', '0%');
 
         var legend_data = [];
+        var multi = (maxv-minv)/10;
         for(var i = 0; i < 10; i++){
           var p = Math.floor((data.length/10)*i);
-          legend_data.push({color: color_pallette(i/10), label: data[p][1].toFixed(2) + measurement[1]})
+          var val = minv+(i*multi);
+          legend_data.push({color: color_pallette(i/10), label: val.toFixed(2) + measurement[1]});
         }
         grad.selectAll('stop')
           .data(legend_data)
