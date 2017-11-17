@@ -115,6 +115,7 @@
         min = document.getElementById("min"),
         median = document.getElementById("median"),
         max = document.getElementById("max"),
+        slide_lines = [],
         last_ts = 0,
         last_camera_ts = 0,
         group = null,
@@ -186,21 +187,16 @@
       }
 
       function render_slide(){
-        var d_p = [];
-        for(var d = 0; d < data.length; d++){
-          d_p[d] = [data[d][0] + ((current_line*x_step)*point_dir.x), data[d][1] + ((current_line*y_step)*point_dir.y)];
-        }
-        var path = svg.append("path")
-          .attr("d", line(d_p))
+        svg.append("path")
+          .attr("d", line(slide_lines[current_line]))
           .attr("stroke", color_pallette((current_line/total_lines)))
-          .attr("stroke-width", "1")
           .attr("stroke-dasharray", line_dash[0] + " " + line_dash[1])
           .attr("fill", "none");
       }
 
       function animate(ts){
-        render_slide();
         if(current_line < (total_lines-1)){
+          render_slide();
           current_line++;
         }else{
           paused = true;
@@ -232,7 +228,6 @@
         var path = svg.append("path")
           .attr("d", line(data))
           .attr("stroke", color_pallette(0))
-          .attr("stroke-width", "1")
           .attr("fill", "none");
         var tl = path.node().getTotalLength();
         path
@@ -283,15 +278,22 @@
         var medv = d3.median(data, function(d){return d[1];});
         y.domain([minv, maxv]);
         color_scale.domain([minv, maxv]);
-        y_step = (maxv-minv)/viz_height;
+        y_step = ((maxv-minv)/viz_height).toFixed(3);
         current_line = 0;
         point_dir = {x: Math.random() >= .5 ? 1 : -1, y: Math.random() >= .5 ? 1 : -1};
         line_dash = [Math.ceil(Math.random()*3), Math.ceil(Math.random()*5)]
         paused = false;
         color_pallette = hues[Math.floor(Math.random()*hues.length)];
+        slide_lines = [];
+        for(var l = 0; l < total_lines; l++){
+          var line = [];
+          for(var d = 0; d < data.length; d++){
+            line[d] = [(data[d][0] + ((l*x_step)*point_dir.x)).toFixed(3), (data[d][1] + ((l*y_step)*point_dir.y)).toFixed(3)];
+          }
+          slide_lines[l] = line;
+        }
         camera_x = (Math.random()*200)-100;
         camera_y = (Math.random()*100)-50;
-        scene.fog = new THREE.Fog( color_pallette(1), 10, 300 );
         var g = svg.append("g");
         g.append("g")
           .attr("transform", "translate(0," + (height-60) + ")")
