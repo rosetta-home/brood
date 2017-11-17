@@ -15,7 +15,7 @@ defmodule Brood.Application do
       Plug.Adapters.Cowboy.child_spec(:http, Brood.HTTPRouter, [], [port: @http_port, dispatch: dispatch()]),
       supervisor(Task.Supervisor, [[name: Brood.TaskSupervisor]]),
       worker(Mongo, [[name: :mongo_brood, hostname: @mongo_host, database: @mongo_database, pool: DBConnection.Poolboy]]),
-      #worker(Brood.SatoriPublisher, []),
+      worker(Brood.SatoriPublisher, []),
       worker(Brood.MQTTHandler, []),
     ]
     opts = [strategy: :one_for_one, name: Brood.Supervisor]

@@ -29,7 +29,7 @@ defmodule CertTest.Mixfile do
       {:mongodb, "~> 0.4.0"},
       {:poolboy, "~> 1.5"},
       {:gen_mqtt, "~> 0.3.1"},
-      {:satori, "~> 0.2.0"},
+      {:satori, "~> 0.2.1"},
       {:wobserver, "~> 0.1.7"},
       {:comeonin, "~> 3.1"},
       {:base64url, "~> 0.0.1"},
