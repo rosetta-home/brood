@@ -16,13 +16,17 @@ defmodule Brood.MQTTHandler do
 
   def on_connect(state) do
     Logger.info "MQTT Connected"
-    :ok = GenMQTT.subscribe(self, "node/+/+", 0)
+    :ok = GenMQTT.subscribe(self, "node/+/payload", 0)
     {:ok, state}
   end
 
   def on_publish(["node", client, "payload"], message, state) do
     Logger.info "#{client} Published: #{inspect message}"
     Task.Supervisor.start_child(Brood.TaskSupervisor, fn -> {client, message} |> process end)
+    {:ok, state}
+  end
+
+  def on_publish(_, _, state) do
     {:ok, state}
   end
 

@@ -47,6 +47,10 @@ defmodule Brood.Resource.Account do
     end
   end
 
+  def cleanse(%Account{} = account) do
+    %Account{account | _id: BSON.ObjectId.encode!(account._id), password: nil}
+  end
+
   def delete(%Account{} = account) do
     :mongo_brood |> Mongo.delete_one(@account_collection, %{_id: account._id}, pool: DBConnection.Poolboy)
   end

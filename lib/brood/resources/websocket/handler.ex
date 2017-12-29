@@ -1,7 +1,8 @@
 defmodule Brood.Resource.WebSocket.Handler do
   require Logger
+  alias Brood.Resource.Account
   @behaviour :cowboy_websocket_handler
-  @timeout 60000
+  @timeout 9999999
 
   #Message Types
   @bearer "Bearer "
@@ -27,7 +28,7 @@ defmodule Brood.Resource.WebSocket.Handler do
   end
 
   defmodule State do
-    defstruct [authenticated: false]
+    defstruct [authenticated: false, node: nil, account: nil]
   end
 
   def init(_, _req, _opts) do
@@ -45,7 +46,16 @@ defmodule Brood.Resource.WebSocket.Handler do
     {reply, state} =
       case Guardian.decode_and_verify(token) do
         {:ok, claims} ->
-          state = %State{state | authenticated: true}
+          Logger.info "Claims: #{inspect claims}"
+          account =
+            claims
+            |> Map.get("sub")
+            |> (fn "Account:" <> id -> id end).()
+            |> Account.from_id
+            |> Account.cleanse
+            |> IO.inspect
+          {:ok, node} = Brood.NodeCommunicator.start_link(account.kit_id)
+          state = %State{state | authenticated: true, account: account, node: node}
           {%Message{type: @authentication, payload: state}, state}
         {:error, reason} -> {%Error{message: :invalid_token}, state}
       end
@@ -57,14 +67,18 @@ defmodule Brood.Resource.WebSocket.Handler do
     {:reply, {:text, %Error{message: :not_authenticated} |> Poison.encode!}, req, state}
   end
 
-  def websocket_handle({:text, message}, req, %State{authenticated: true} = state) do
-    {reply, state} =
-      case Poison.decode(message, as: %Message{}) do
-        {:ok, mes} -> mes |> handle_message(state)
-        {:error, er} -> {%Error{message: er}, state}
-      end
+  def websocket_handle({:text, payload}, req, %State{authenticated: true} = state) do
+    Logger.debug("#{inspect payload}")
+    {reply, state} = payload |> handle_payload(state)
     Logger.debug("#{inspect reply}")
     {:reply, {:text, reply |> Poison.encode!}, req, state}
+  end
+
+  def handle_payload(payload, state) do
+    case Poison.decode(payload, as: %Message{}) do
+      {:ok, mes} -> mes |> handle_message(state)
+      {:error, er} -> {%Error{message: er}, state}
+    end
   end
 
   def handle_message(%Message{type: @ping} = mes, state) do
@@ -77,7 +91,7 @@ defmodule Brood.Resource.WebSocket.Handler do
   end
 
   def handle_message(%Message{type: @touchstone_name} = mes, state) do
-    :timer.sleep(10000)
+    state.node |> Brood.NodeCommunicator.request(mes)
     {%Message{mes | type: @touchstone_saved, payload: %{current_id: mes.payload |> Map.get("id"), name: mes.payload |> Map.get("name")}}, state}
   end
 
