@@ -4,8 +4,8 @@ defmodule Brood.Resource.Account.Router do
   alias Brood.Resource.Account
   require Logger
 
-  plug CORSPlug, origin: ["http://localhost:8080"]
-  plug Plug.Parsers, parsers: [:multipart]
+  plug CORSPlug, origin: ["http://localhost:8080","http://localhost:8090"]
+  plug Plug.Parsers, parsers: [:multipart, :urlencoded]
   plug :match
   plug :dispatch
 
@@ -26,13 +26,12 @@ defmodule Brood.Resource.Account.Router do
   def response_body({conn, jwt}, account) do
     #TODO get hardware info from DB
     account = %Account{account |
-      _id: account._id |> BSON.ObjectId.encode!,
       hardware: %Account.Hardware{
         id: "0000000081474d35",
         weather: [%{id: "345345345", name: "Wunderground-98"}],
         energy: [%{id: "3098s0d98fs", name: "Neurio-0x0005643578"}],
         hvac: [%{id: "sa0sd9fs9df7s", name: "RadioThermostat-986776d3"}],
-        ieq: [%{id: "1", name: "Kitchen"}, %{id: "2", name: nil}, %{id: "3", name: nil}, %{id: "4", name: "Bathroom"}, %{id: "5", name: nil}]
+        ieq: [%{id: "42", name: "Office"}, %{id: "2", name: nil}, %{id: "3", name: nil}, %{id: "4", name: "Bathroom"}, %{id: "5", name: nil}]
       }
     }
     {conn, %{success: jwt, account: account} |> Poison.encode!}

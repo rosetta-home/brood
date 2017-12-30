@@ -5,12 +5,14 @@ defmodule Brood.NodeCommunicator do
   @host Application.get_env(:brood, :mqtt_host)
   @port Application.get_env(:brood, :mqtt_port)
 
+  @end_points ["request", "response", "point"]
+
   defmodule State do
-    defstruct [:id]
+    defstruct [:id, :parent]
   end
 
-  def start_link(node_id, state \\ %State{}) do
-    state = %State{id: node_id}
+  def start_link(parent, node_id, state \\ %State{}) do
+    state = %State{id: node_id, parent: parent}
     client = "Server:#{node_id}"
     Logger.info "MQTT Client #{client} Connecting: #{@host}:#{@port}"
     priv_dir = :code.priv_dir(:brood)
@@ -22,19 +24,30 @@ defmodule Brood.NodeCommunicator do
 
   def on_connect(state) do
     Logger.info "MQTT Connected"
-    :ok = GenMQTT.subscribe(self, "node/Node:#{state.id}/response", 0)
+    topics = @end_points |> Enum.map(fn ep ->
+      {"node/#{state.id}/#{ep}", 1}
+    end)
+    :ok = GenMQTT.subscribe(self(), topics)
+    {:ok, state}
+  end
+
+  def on_subscribe(_subscriptions, state) do
     {:ok, state}
   end
 
   def on_publish(["node", client, "response"], message, state) do
     Logger.info "#{client} Response Received: #{inspect message}"
-    #Task.Supervisor.start_child(Brood.TaskSupervisor, fn -> {client, message} |> process end)
     {:ok, state}
   end
 
   def on_publish(["node", client, "request"], message, state) do
     Logger.info "#{client} Request Sent: #{inspect message}"
-    #Task.Supervisor.start_child(Brood.TaskSupervisor, fn -> {client, message} |> process end)
+    {:ok, state}
+  end
+
+  def on_publish(["node", client, "point"], message, state) do
+    Logger.info "#{client} Data Point Received: #{inspect message}"
+    send(state.parent, message |> Poison.decode!)
     {:ok, state}
   end
 
@@ -43,35 +56,9 @@ defmodule Brood.NodeCommunicator do
   end
 
   def handle_call({:request, payload}, _from, state) do
-    topic = "node/Node:#{state.id}/request"
+    topic = "node/#{state.id}/request"
     Logger.info "Node Request:#{topic} => #{inspect payload}"
     self() |> GenMQTT.publish(topic, payload |> Poison.encode!, 1)
     {:reply, :ok, state}
   end
-
-  def process({client, data}) do
-    data
-    |> parse(client)
-    |> meta
-    |> write
-    |> publish
-  end
-
-  def parse(data, client) do
-    Logger.info "Data from: #{client} => #{inspect data}"
-    []
-  end
-
-  def meta(points) do
-    points
-  end
-
-  def write(points) do
-    points
-  end
-
-  def publish(points) do
-    points
-  end
-
 end

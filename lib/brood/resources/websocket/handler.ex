@@ -8,7 +8,7 @@ defmodule Brood.Resource.WebSocket.Handler do
   @bearer "Bearer "
   @authentication "authentication"
   @ping "ping"
-  @configure "configure"
+  @configure_touchstone "configure_touchstone"
   @configuration_state "configuration_state"
   @touchstone_name "touchstone_name"
   @touchstone_saved "touchstone_saved"
@@ -41,6 +41,10 @@ defmodule Brood.Resource.WebSocket.Handler do
     {:ok, req2, %State{}, @timeout}
   end
 
+  def websocket_handle({:text, "ping"}, req, state) do
+    {:reply, {:text, "pong"}, req, state}
+  end
+
   def websocket_handle({:text, <<@bearer, token :: binary>>}, req, state) do
     Logger.debug("#{inspect token}")
     {reply, state} =
@@ -54,7 +58,7 @@ defmodule Brood.Resource.WebSocket.Handler do
             |> Account.from_id
             |> Account.cleanse
             |> IO.inspect
-          {:ok, node} = Brood.NodeCommunicator.start_link(account.kit_id)
+          {:ok, node} = Brood.NodeCommunicator.start_link(self(), account.kit_id)
           state = %State{state | authenticated: true, account: account, node: node}
           {%Message{type: @authentication, payload: state}, state}
         {:error, reason} -> {%Error{message: :invalid_token}, state}
@@ -85,18 +89,22 @@ defmodule Brood.Resource.WebSocket.Handler do
     {%Message{mes | type: @pong, payload: %{ok: :yes}}, state}
   end
 
-  def handle_message(%Message{type: @configure} = mes, state) do
-    :timer.sleep(10000)
+  def handle_message(%Message{type: @configure_touchstone} = mes, state) do
+    state.node |> Brood.NodeCommunicator.request(mes)
     {%Message{mes | type: @configuration_state, payload: %{current_id: 1}}, state}
   end
 
   def handle_message(%Message{type: @touchstone_name} = mes, state) do
-    state.node |> Brood.NodeCommunicator.request(mes)
     {%Message{mes | type: @touchstone_saved, payload: %{current_id: mes.payload |> Map.get("id"), name: mes.payload |> Map.get("name")}}, state}
   end
 
   def handle_message(%Message{} = mes, state) do
     {%Message{mes | type: :unknown_type, payload: %{type: mes.type}}, state}
+  end
+
+  def websocket_info(message, req, state) do
+    dp = message |> Map.drop([:device_pid, :histogram, :timer])
+    {:reply, {:text, message |> Poison.encode!}, req, state}
   end
 
   def websocket_info(:shutdown, req, state) do
