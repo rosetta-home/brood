@@ -8,19 +8,6 @@ import Profile from '../routes/profile';
 import { updateData } from '../actions';
 import store from '../store';
 
-const fakeAuth = {
-  isAuthenticated: false,
-  authenticate(cb) {
-    this.isAuthenticated = true
-    setTimeout(cb, 100) // fake async
-  },
-  signout(cb) {
-    this.isAuthenticated = false
-    setTimeout(cb, 100)
-  }
-}
-
-
 class Redirect extends Component {
   componentWillMount() {
     route(this.props.to, true);
@@ -32,7 +19,7 @@ class Redirect extends Component {
 }
 
 const ProtectedRoute = ({ component: Component, ...rest }) => (
-  fakeAuth.isAuthenticated
+  store.getState().authenticated
 		? (<Component {...rest} />)
 		: (<Redirect to='/login' />)
 )

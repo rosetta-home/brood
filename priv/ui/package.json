@@ -36,7 +36,6 @@
     "preact": "^8.1.0",
     "preact-material-components": "^1.2.4",
     "preact-redux": "^1.2.0",
-    "react-router-dom": "^4.2.2",
     "reconnecting-websocket": "^3.2.2",
     "redux": "^3.6.0"
   }

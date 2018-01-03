@@ -61,7 +61,9 @@ defmodule Brood.Resource.WebSocket.Handler do
           {:ok, node} = Brood.NodeCommunicator.start_link(self(), account.kit_id)
           state = %State{state | authenticated: true, account: account, node: node}
           {%Message{type: @authentication, payload: state}, state}
-        {:error, reason} -> {%Error{message: :invalid_token}, state}
+        {:error, reason} ->
+          Process.send_after(self(), :shutdown, 100)
+          {%Error{message: :invalid_token}, state}
       end
       {:reply, {:text, reply |> Poison.encode!}, req, state}
   end

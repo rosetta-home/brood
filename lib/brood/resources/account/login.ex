@@ -9,7 +9,7 @@ defmodule Brood.Resource.Account.Login do
   end
 
   def content_types_accepted(conn, state) do
-    {[{{"application", "x-www-form-urlencoded", :*}, :from_form}], conn, state}
+    {[{{"application", "x-www-form-urlencoded", :*}, :from_form}, {{"multipart", "form-data", :*}, :from_form}], conn, state}
   end
 
   def from_form(conn, state) do

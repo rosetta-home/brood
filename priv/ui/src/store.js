@@ -1,32 +1,15 @@
 import { createStore, applyMiddleware } from 'redux';
 import * as types from './types';
-import { sendAction } from './actions';
+import { sendAction, authenticated } from './actions';
 import { emit } from './util/websocket'
-import { account } from './common/config'
 import { num_data_points } from './common/config'
 
 
 let ACTIONS = {
-  LOGIN: ({...state}, {email, password}) => {
-    console.log(email);
-    console.log(password);
-    var xhr = new XMLHttpRequest();
-    var params = "email="+encodeURIComponent(email)+"&password="+encodeURIComponent(password)
-		xhr.open("POST", account()+"/account/login", true);
-		xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhr.onload = function(res){
-      console.log(res);
-    }
-		xhr.onreadystatechange = function () {
-  		if(xhr.readyState === XMLHttpRequest.DONE){
-				console.log("DONE");
-        console.log(xhr.responseText);
-			}
-		}
-		xhr.send(params);
-    return state;
+  AUTHENTICATED: ({...state}, {token}) => {
+    var authed = {authenticated: token}
+    return Object.assign(state, authed);
   },
-
   SEND_ACTION: ({...state}, {action, payload}) => {
     var obj = {}
 		obj[action] = payload;
@@ -78,6 +61,7 @@ const INITIAL = {
   ieq: {},
   weather_station: {},
   smart_meter: {},
+  authenticated: false,
 };
 
 export default createStore( (state, action) => (

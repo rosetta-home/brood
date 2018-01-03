@@ -69,5 +69,6 @@ function close_handler(e){
 }
 
 function authorize(){
-  socket.send("Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJBY2NvdW50OjVhNDU4MjdjMzMzZTBhMDE3M2UzYmY1MCIsImV4cCI6MTUxNzE3MDk0MywiaWF0IjoxNTE0NTc4OTQzLCJpc3MiOiJCcm9vZCIsImp0aSI6IjdiNDcyYjAwLWMxMWUtNGZhMS1hMmE0LTI2Y2NkYzk3ZmM2YSIsInBlbSI6e30sInN1YiI6IkFjY291bnQ6NWE0NTgyN2MzMzNlMGEwMTczZTNiZjUwIiwidHlwIjoiYWNjZXNzIn0.L9wIEky3DmosPfOU3kv01FzU4Z1GU5PlARyd29rqkeWphnKlvkBc8tVBp98C48c3QBftRZg-Bo6lnQA65fbOQg");
+  var token = store.getState().authenticated;
+  socket.send("Bearer "+ token);
 }
