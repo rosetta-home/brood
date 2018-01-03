@@ -40,7 +40,7 @@ export default class Home extends Component {
 
 	render = ({ ...state }, { text }) => {
 		return (
-      <div className="homepage" >
+      <div className="homepage page" >
         <LayoutGrid>
           <LayoutGrid.Inner>
             <DeviceGroup title="HVAC" devices={state.hvac} name="hvac" graph_var={["temperature", "temporary_target_cool", "temporary_target_heat"]} color={this.hues[4]} />

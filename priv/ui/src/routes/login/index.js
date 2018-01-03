@@ -3,9 +3,11 @@ import { route } from 'preact-router';
 import LayoutGrid from 'preact-material-components/LayoutGrid';
 import Button from 'preact-material-components/Button';
 import TextField from 'preact-material-components/TextField';
+import Card from 'preact-material-components/Card';
 import 'preact-material-components/LayoutGrid/style.css';
 import 'preact-material-components/TextField/style.css';
 import 'preact-material-components/Button/style.css';
+import 'preact-material-components/Card/style.css';
 import reduce from '../../reducers';
 import store from '../../store';
 import * as actions from '../../actions';
@@ -38,22 +40,30 @@ function login(){
 @connect(reduce, actions)
 export default class Home extends Component {
 	submit = (event) => {
-		login();
 		event.preventDefault();
+		login();
 		return false;
 	}
 
 	render = ({ ...state }, { text }) => {
 		return (
-      <div className="login page" >
+      <div className="login page">
         <LayoutGrid>
           <LayoutGrid.Inner>
-            <LayoutGrid.Cell cols="12" desktopCols="12" tabletCols="8" phoneCols="4">
-							<form id="login" onsubmit={this.submit}>
-								<TextField type="text" name="email" label="Email" />
-								<TextField type="password" name="password" label="Password" />
-								<Button>Login</Button>
-							</form>
+            <LayoutGrid.Cell cols="6" desktopCols="6" tabletCols="8" phoneCols="4">
+        			<Card style={{"background-color": "#FFFFFF"}}>
+          			<Card.Primary>
+            			<Card.Title>Login</Card.Title>
+          			</Card.Primary>
+          			<Card.Media className='card-media'>
+									<form id="login" onsubmit={this.submit}>
+										<TextField type="text" name="email" label="Email" fullwidth={true} />
+										<TextField type="password" name="password" label="Password" fullwidth={true} />
+										<br />
+										<Button raised={true}>Login</Button>
+									</form>
+								</Card.Media>
+        			</Card>
             </LayoutGrid.Cell>
           </LayoutGrid.Inner>
         </LayoutGrid>
