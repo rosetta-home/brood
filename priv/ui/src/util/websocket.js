@@ -69,6 +69,11 @@ function close_handler(e){
 }
 
 function authorize(){
-  var token = store.getState().authenticated;
-  socket.send("Bearer "+ token);
+  var user = localStorage.getItem('user');
+  if(user){
+    var token = JSON.parse(user).token;
+    socket.send("Bearer "+ token);
+  }else{
+    socket.close();
+  }
 }

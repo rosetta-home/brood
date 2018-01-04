@@ -17,12 +17,9 @@ import style from './style';
 
 function login(){
 	var fd = new FormData(document.getElementById("login"));
-	console.log(fd);
-	var h = new Headers();
 	fetch(account()+"/account/login", {
 		method: "POST",
 		body: fd,
-		headers: h,
 		cors: true,
 	}).then((resp) => {
 		return resp.json();
@@ -38,7 +35,7 @@ function login(){
 }
 
 @connect(reduce, actions)
-export default class Home extends Component {
+export default class Login extends Component {
 	submit = (event) => {
 		event.preventDefault();
 		login();
@@ -63,6 +60,11 @@ export default class Home extends Component {
 										<Button raised={true}>Login</Button>
 									</form>
 								</Card.Media>
+								<Card.Actions>
+									<Card.Action onclick={() => ( route("/register", true) ) }>
+										Register a new account
+									</Card.Action>
+								</Card.Actions>
         			</Card>
             </LayoutGrid.Cell>
           </LayoutGrid.Inner>

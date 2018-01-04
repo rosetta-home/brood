@@ -41,10 +41,6 @@ defmodule Brood.Resource.WebSocket.Handler do
     {:ok, req2, %State{}, @timeout}
   end
 
-  def websocket_handle({:text, "ping"}, req, state) do
-    {:reply, {:text, "pong"}, req, state}
-  end
-
   def websocket_handle({:text, <<@bearer, token :: binary>>}, req, state) do
     Logger.debug("#{inspect token}")
     {reply, state} =
@@ -66,6 +62,10 @@ defmodule Brood.Resource.WebSocket.Handler do
           {%Error{message: :invalid_token}, state}
       end
       {:reply, {:text, reply |> Poison.encode!}, req, state}
+  end
+
+  def websocket_handle({:text, "ping"}, req, %State{authenticated: true} = state) do
+    {:reply, {:text, "pong"}, req, state}
   end
 
   def websocket_handle(_m, req, %State{authenticated: false} = state) do
@@ -104,17 +104,13 @@ defmodule Brood.Resource.WebSocket.Handler do
     {%Message{mes | type: :unknown_type, payload: %{type: mes.type}}, state}
   end
 
-  def websocket_info(message, req, state) do
-    dp = message |> Map.drop([:device_pid, :histogram, :timer])
-    {:reply, {:text, message |> Poison.encode!}, req, state}
-  end
-
   def websocket_info(:shutdown, req, state) do
     {:shutdown, req, state}
   end
 
   def websocket_info(message, req, state) do
-    {:reply, {:text, message}, req, state}
+    dp = message |> Map.drop([:device_pid, :histogram, :timer])
+    {:reply, {:text, message |> Poison.encode!}, req, state}
   end
 
   def websocket_terminate(_reason, _req, _state) do

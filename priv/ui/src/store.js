@@ -42,9 +42,12 @@ let ACTIONS = {
 
   UPDATE_DATA: function({...state}, data){
     for(var type in state){
+      if(type == "authenticated") return;
       var t = state[type];
+      console.log(t);
       for(var device in t){
         var d = t[device];
+        console.log(d);
         var dp = JSON.parse(JSON.stringify(d[d.length-1]));
         dp.timestamp = new Date();
         d.push(dp);
