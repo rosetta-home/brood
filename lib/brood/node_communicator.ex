@@ -35,17 +35,17 @@ defmodule Brood.NodeCommunicator do
     {:ok, state}
   end
 
-  def on_publish(["node", client, "response"], message, state) do
+  def on_publish(["node", client, "response"], message, %State{id: id} = state) when client ==  id do
     Logger.info "#{client} Response Received: #{inspect message}"
     {:ok, state}
   end
 
-  def on_publish(["node", client, "request"], message, state) do
+  def on_publish(["node", client, "request"], message, %State{id: id} = state) when client ==  id do
     Logger.info "#{client} Request Sent: #{inspect message}"
     {:ok, state}
   end
 
-  def on_publish(["node", client, "point"], message, state) do
+  def on_publish(["node", client, "point"], message, %State{id: id} = state) when client ==  id do
     Logger.info "#{client} Data Point Received: #{inspect message}"
     send(state.parent, message |> Poison.decode!)
     {:ok, state}

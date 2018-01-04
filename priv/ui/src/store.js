@@ -42,16 +42,15 @@ let ACTIONS = {
 
   UPDATE_DATA: function({...state}, data){
     for(var type in state){
-      if(type == "authenticated") return;
-      var t = state[type];
-      console.log(t);
-      for(var device in t){
-        var d = t[device];
-        console.log(d);
-        var dp = JSON.parse(JSON.stringify(d[d.length-1]));
-        dp.timestamp = new Date();
-        d.push(dp);
-        if(d.length > num_data_points) d = d.slice(1, num_data_points+1);
+      if(type != "authenticated"){
+        var t = state[type];
+        for(var device in t){
+          var d = t[device];
+          var dp = JSON.parse(JSON.stringify(d[d.length-1]));
+          dp.timestamp = new Date();
+          d.push(dp);
+          if(d.length > num_data_points) d = d.slice(1, num_data_points+1);
+        }
       }
     }
     return JSON.parse(JSON.stringify(state));
