@@ -7,13 +7,20 @@ import RealtimeGraph from './realtime-graph'
 
 export default class Sensor extends Component {
 
-  render = ({ title, list, name, graph_var, color}) => {
-    var value = list.length ? list[list.length-1].data_point : 0;
+  get_value = () => {
+    var list = this.props.list;
+    return list.length ? list[list.length-1].data_point : 0;
+  }
+
+  render_title = () => (
+    this.props.title + " | " + this.get_value().interface_pid
+  )
+
+  render_tags = () => {
+    var value = this.get_value();
     var out = [];
-    var title_text = "";
-    title_text = title + " | " + value.interface_pid;
     for(var k in value.state){
-      if(graph_var.indexOf(k) != -1){
+      if(this.props.graph_var.indexOf(k) != -1){
         var tag = k.split("_").map((word) => word.charAt().toUpperCase() + word.substr(1))
         out.push(
           <List.Item>
@@ -23,26 +30,41 @@ export default class Sensor extends Component {
         );
       }
     }
-    return (
-      <Card style={{"background-color": color(.2)}}>
-        <Card.Primary style={{"background-color": color(.5)}}>
-          <Card.Title style={{"color": color(0)}}>
-            {title_text}
-          </Card.Title>
+    return out;
+  }
+
+  render_primary = () => (
+    <Card.Primary style={{"background-color": this.props.color(.5)}}>
+      <Card.Title style={{"color": this.props.color(0)}}>
+        {this.render_title()}
+      </Card.Title>
+    </Card.Primary>
+  )
+
+  render_media = () => {
+    var value = this.get_value();
+    return (<Card.Media className='card-media' style={{"padding": "0px", "padding-top": "10px"}}>
+      <div id={value.interface_pid}>
+        <RealtimeGraph list={this.props.list} type={this.props.name} name={value.interface_pid} color={this.props.color} graph_var={this.props.graph_var} />
+      </div>
+    </Card.Media>);
+  }
+
+  render_card = () => (
+    <Card style={{"background-color": this.props.color(.2)}}>
+      {this.render_primary()}
+      {this.render_media()}
+      <Card.HorizontalBlock style={{"background-color": this.props.color(.1)}}>
+        <Card.Primary style={{"color": this.props.color(1)}}>
+        <List className={"mdc-list--dense"}>
+          {this.render_tags().map((span) => span)}
+        </List>
         </Card.Primary>
-        <Card.Media className='card-media' style={{"padding": "0px", "padding-top": "10px"}}>
-          <div id={value.interface_pid}>
-            <RealtimeGraph list={list} type={name} name={value.interface_pid} color={color} graph_var={graph_var} />
-          </div>
-        </Card.Media>
-        <Card.HorizontalBlock style={{"background-color": color(.1)}}>
-          <Card.Primary style={{"color": color(1)}}>
-            <List className={"mdc-list--dense"}>
-              {out.map((span) => span)}
-            </List>
-          </Card.Primary>
-        </Card.HorizontalBlock>
-      </Card>
-    );
+      </Card.HorizontalBlock>
+    </Card>
+  )
+
+  render = ({ title, list, name, graph_var, color}, state) => {
+    return this.render_card()
   }
 }
