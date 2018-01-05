@@ -38,8 +38,12 @@ defmodule Brood.Application do
   defp dispatch do
     [
       {:_, [
+        {"/", Brood.Resource.UI.Index, []},
+        {"/login", Brood.Resource.UI.Index, []},
+        {"/register", Brood.Resource.UI.Index, []},
         {"/ws", Brood.Resource.WebSocket.Handler, []},
         {"/static/[...]", :cowboy_static, {:priv_dir,  :brood, "static"}},
+        {"/build/[...]", :cowboy_static, {:priv_dir,  :brood, "ui/build"}},
         {:_, Plug.Adapters.Cowboy.Handler, {Brood.HTTPRouter, []}}
       ]}
     ]

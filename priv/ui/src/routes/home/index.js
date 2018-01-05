@@ -2,6 +2,8 @@ import { h, Component } from 'preact';
 import LayoutGrid from 'preact-material-components/LayoutGrid';
 import 'preact-material-components/LayoutGrid/style.css';
 import DeviceGroup from '../../components/device_group';
+import Sensor from '../../components/sensor';
+import IEQ from '../../components/ieq';
 import reduce from '../../reducers';
 import * as actions from '../../actions';
 import { updateData } from '../../actions';
@@ -43,10 +45,10 @@ export default class Home extends Component {
       <div className="homepage page" >
         <LayoutGrid>
           <LayoutGrid.Inner>
-            <DeviceGroup title="HVAC" devices={state.hvac} name="hvac" graph_var={["temperature", "temporary_target_cool", "temporary_target_heat"]} color={this.hues[4]} />
-            <DeviceGroup title="Weather" devices={state.weather_station} name="weather_station" graph_var={["outdoor_temperature", "indoor_temperature"]} color={this.hues[0]} />
-            <DeviceGroup title="Energy" devices={state.smart_meter} name="smart_meter" graph_var={["kw"]} color={this.hues[2]} />
-            <DeviceGroup title="IEQ" devices={state.ieq} name="ieq" graph_var={["co2", "voc", "pm"]} color={this.hues[1]} />
+            <DeviceGroup title="HVAC" component={Sensor} devices={state.hvac} name="hvac" graph_var={["temperature", "temporary_target_cool", "temporary_target_heat"]} color={this.hues[4]} />
+            <DeviceGroup title="Weather" component={Sensor} devices={state.weather_station} name="weather_station" graph_var={["outdoor_temperature", "indoor_temperature"]} color={this.hues[0]} />
+            <DeviceGroup title="Energy" component={Sensor} devices={state.smart_meter} name="smart_meter" graph_var={["kw"]} color={this.hues[2]} />
+            <DeviceGroup title="IEQ" component={IEQ} devices={state.ieq} name="ieq" graph_var={["co2", "voc", "pm"]} color={this.hues[1]} />
           </LayoutGrid.Inner>
         </LayoutGrid>
       </div>

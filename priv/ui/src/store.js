@@ -10,11 +10,9 @@ let ACTIONS = {
     var authed = {authenticated: token}
     return Object.assign(state, authed);
   },
-  SEND_ACTION: ({...state}, {action, payload}) => {
-    var obj = {}
-		obj[action] = payload;
-		emit(sendAction(action, payload));
-		return Object.assign(state, obj)
+  SEND_MESSAGE: ({...state}, {id, message, payload}) => {
+		emit({type: message, id: id, payload: payload});
+		return state
   },
 
   ACTION: function({...state}, {action, payload}){

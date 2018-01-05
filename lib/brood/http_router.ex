@@ -66,6 +66,10 @@ defmodule Brood.HTTPRouter do
     |> send_resp(200, doc)
   end
 
+  match _ do
+    send_resp(conn, 404, "oops")
+  end
+
   def get_data(measurement) do
     node = "00000000fdf4ffe2"
     "SELECT MEAN(value) as value FROM \"brood\".\"realtime\".\"#{measurement}\" WHERE node_id = '#{node}' AND time > now()-30d GROUP BY time(6h) fill(previous)"

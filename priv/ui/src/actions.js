@@ -29,10 +29,11 @@ export function updateData() {
 	};
 }
 
-export function sendAction(action, payload) {
+export function sendMessage(type, id, payload) {
 	return {
-		type: types.SEND_ACTION,
-		action: action,
+		type: types.SEND_MESSAGE,
+		id: id,
+		message: type,
 		payload: payload
 	};
 }

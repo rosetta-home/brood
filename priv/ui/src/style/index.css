@@ -35,6 +35,47 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
+ul.color-control{
+	display: inline-block;
+}
+
+ul.color-control li{
+	display: inline;
+	list-style: none;
+	padding: 4px;
+}
+
+.color-button{
+	width: 12px;
+	height: 20px;
+	display: inline-block;
+	border: 1px solid white;
+}
+
+.color-button.red{
+	background-color: red;
+}
+
+.color-button.blue{
+	background-color: blue;
+}
+
+.color-button.green{
+	background-color: green;
+}
+
+.color-button.yellow{
+	background-color: yellow;
+}
+
+.color-button.white{
+	background-color: white;
+}
+
+.color-button.off{
+	background-color: black;
+}
+
 * {
 	box-sizing: border-box;
 }

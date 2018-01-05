@@ -82,7 +82,9 @@ defmodule Brood.Resource.WebSocket.Handler do
 
   def handle_payload(payload, state) do
     case Poison.decode(payload, as: %Message{}) do
-      {:ok, mes} -> mes |> handle_message(state)
+      {:ok, mes} ->
+        Logger.info("Got Message #{inspect mes}")
+        mes |> handle_message(state)
       {:error, er} -> {%Error{message: er}, state}
     end
   end
