@@ -54,12 +54,12 @@ export default class Register extends Component {
           			</Card.Primary>
           			<Card.Media className='card-media'>
 									<form id="register" onsubmit={this.submit}>
-										<TextField type="text" name="email" label="Email" fullwidth={true} />
-										<TextField type="password" name="password" label="Password" fullwidth={true} />
-										<TextField type="password" name="password_conf" label="Confirm Password" fullwidth={true} />
-										<TextField type="text" name="location_name" label="Location" fullwidth={true} />
-										<TextField type="text" name="kit_id" label="Kit ID" fullwidth={true} />
-										<TextField type="text" name="zipcode" label="Zip Code" fullwidth={true} />
+										<TextField type="text" name="email" placeholder="Email" fullwidth={true} />
+										<TextField type="password" name="password" placeholder="Password" fullwidth={true} />
+										<TextField type="password" name="password_conf" placeholder="Confirm Password" fullwidth={true} />
+										<TextField type="text" name="location_name" placeholder="Location" fullwidth={true} />
+										<TextField type="text" name="kit_id" placeholder="Kit ID" fullwidth={true} />
+										<TextField type="text" name="zipcode" placeholder="Zip Code" fullwidth={true} />
 										<br />
 										<Button raised={true}>Register</Button>
 									</form>
