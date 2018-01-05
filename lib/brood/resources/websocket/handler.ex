@@ -2,7 +2,7 @@ defmodule Brood.Resource.WebSocket.Handler do
   require Logger
   alias Brood.Resource.Account
   @behaviour :cowboy_websocket_handler
-  @timeout 9999999
+  @timeout 45_000
 
   #Message Types
   @bearer "Bearer "
@@ -115,7 +115,8 @@ defmodule Brood.Resource.WebSocket.Handler do
     {:reply, {:text, message |> Poison.encode!}, req, state}
   end
 
-  def websocket_terminate(_reason, _req, _state) do
+  def websocket_terminate(_reason, req, state) do
+    Process.exit(state.node, :kill)
     :ok
   end
 end
