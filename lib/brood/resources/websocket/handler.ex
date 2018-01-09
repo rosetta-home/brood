@@ -59,7 +59,7 @@ defmodule Brood.Resource.WebSocket.Handler do
           {%Message{type: @authentication, payload: state}, state}
         {:error, reason} ->
           Process.send_after(self(), :shutdown, 100)
-          {%Error{message: :invalid_token}, state}
+          {%Error{message: :INVALID_TOKEN}, state}
       end
       {:reply, {:text, reply |> Poison.encode!}, req, state}
   end
@@ -70,7 +70,7 @@ defmodule Brood.Resource.WebSocket.Handler do
 
   def websocket_handle(_m, req, %State{authenticated: false} = state) do
     Process.send_after(self(), :shutdown, 0)
-    {:reply, {:text, %Error{message: :not_authenticated} |> Poison.encode!}, req, state}
+    {:reply, {:text, %Error{message: :AUTH_ERROR} |> Poison.encode!}, req, state}
   end
 
   def websocket_handle({:text, payload}, req, %State{authenticated: true} = state) do
@@ -111,12 +111,15 @@ defmodule Brood.Resource.WebSocket.Handler do
   end
 
   def websocket_info(message, req, state) do
-    dp = message |> Map.drop([:device_pid, :histogram, :timer])
-    {:reply, {:text, message |> Poison.encode!}, req, state}
+    dp = message |> Map.drop([:device_pid, :histogram, :timer]) |> Map.put(:_type, :message)
+    {:reply, {:text, dp |> Poison.encode!}, req, state}
   end
 
   def websocket_terminate(_reason, req, state) do
-    Process.exit(state.node, :kill)
+    case state.node do
+      nil -> nil
+      _ -> Process.exit(state.node, :kill)
+    end
     :ok
   end
 end

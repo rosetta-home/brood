@@ -16,9 +16,16 @@ export function authenticated(token){
 	};
 }
 
-export function auth_error(error){
+export function authError(error){
 	return {
 		type: types.AUTH_ERROR,
+		error: error
+	};
+}
+
+export function invalidToken(error){
+	return {
+		type: types.INVALID_TOKEN,
 		error: error
 	};
 }

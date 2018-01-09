@@ -5,14 +5,14 @@ defmodule Brood.Application do
 
   @mongo_database Application.get_env(:brood, :mongo_database)
   @mongo_host Application.get_env(:brood, :mongo_host)
-  @http_port Application.get_env(:brood, :http_port)
   #@account_collection Application.get_env(:brood, :account_collection)
 
   def start(_type, _args) do
+    http_port = Application.get_env(:brood, :http_port) |> String.to_integer()
     import Supervisor.Spec, warn: false
     children = [
       Brood.DB.InfluxDB.child_spec,
-      Plug.Adapters.Cowboy.child_spec(:http, Brood.HTTPRouter, [], [port: @http_port, dispatch: dispatch()]),
+      Plug.Adapters.Cowboy.child_spec(:http, Brood.HTTPRouter, [], [port: http_port, dispatch: dispatch()]),
       supervisor(Task.Supervisor, [[name: Brood.TaskSupervisor]]),
       worker(Mongo, [[name: :mongo_brood, hostname: @mongo_host, database: @mongo_database, pool: DBConnection.Poolboy]]),
       worker(Brood.SatoriPublisher, []),

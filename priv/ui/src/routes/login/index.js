@@ -26,11 +26,9 @@ function login(){
 	}).then((resp) => {
 		return resp.json();
 	}).then((data) => {
-		localStorage.setItem("user", JSON.stringify({token: data.success}));
 		store.dispatch(
 			actions.authenticated(data.success)
 		)
-		route("/", true);
 	}).catch((error) => {
 		console.log(error);
 	})

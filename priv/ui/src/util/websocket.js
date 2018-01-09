@@ -1,4 +1,4 @@
-import { receiveAction, receiveDataPoint, receiveData } from '../actions';
+import { receiveAction, receiveDataPoint, receiveData, invalidToken,  authError} from '../actions';
 import * as types from '../types';
 import store from '../store';
 import { host } from '../common/config'
@@ -32,8 +32,34 @@ function message_handler(message){
   try{
     data_p = JSON.parse(message.data);
   }catch(e){
-    data_p = {type: "NULL"};
+    data_p = {_type: "error", type: "NULL"};
   }
+  switch(data_p._type){
+    case types.MESSAGE:
+      action = handle_message(data_p);
+      break;
+    case types.ERROR:
+      action = handle_error(data_p);
+      break;
+  }
+  if(action) store.dispatch(action);
+}
+
+function handle_error(data_p){
+  var action;
+  switch(data_p.message){
+    case types.INVALID_TOKEN:
+      action = invalidToken(data_p);
+      break;
+    case types.AUTH_ERROR:
+      action = authError(data_p);
+      break
+  }
+  return action;
+}
+
+function handle_message(data_p){
+  var action;
   switch(data_p.type){
     case types.RECEIVE_DATA_POINT:
       action = receiveDataPoint(data_p.data_point);
@@ -45,7 +71,7 @@ function message_handler(message){
       action = receiveAction(data_p.action, data_p.payload);
       break;
   }
-  if(action) store.dispatch(action);
+  return action;
 }
 
 function error_handler(e){
