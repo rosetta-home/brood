@@ -44,6 +44,7 @@ defmodule Brood.Application do
         {"/ws", Brood.Resource.WebSocket.Handler, []},
         {"/static/[...]", :cowboy_static, {:priv_dir,  :brood, "static"}},
         {"/build/[...]", :cowboy_static, {:priv_dir,  :brood, "ui/build"}},
+        {"/.well-known/acme-challenge/:token", Brood.Resource.Util.LetsEncrypt, []},
         {:_, Plug.Adapters.Cowboy.Handler, {Brood.HTTPRouter, []}}
       ]}
     ]
