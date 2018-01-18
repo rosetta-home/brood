@@ -9,7 +9,8 @@ config :brood,
   mqtt_host: "vernemq",
   mqtt_port: 4883,
   http_port: System.get_env("HTTP_PORT") || "8080",
-  account_collection: "accounts"
+  account_collection: "accounts",
+  acme_server: "https://acme-v01.api.letsencrypt.org"
 
 config :brood, Brood.DB.InfluxDB,
   host:      "influxdb",

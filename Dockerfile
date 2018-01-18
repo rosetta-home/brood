@@ -1,20 +1,30 @@
 FROM elixir:1.5.1
+ENV DEBIAN_FRONTEND=noninteractive
 
-RUN mkdir /app
-WORKDIR /app
+MAINTAINER Christopher Coté
 
-# Install Elixir Deps
-ADD mix.* ./
-RUN MIX_ENV=prod mix local.rebar
-RUN MIX_ENV=prod mix local.hex --force
-RUN MIX_ENV=prod mix clean --all
-RUN MIX_ENV=prod mix deps.get
+RUN apt-get update && apt-get install -y \
+      inotify-tools \
+      && rm -rf /var/lib/apt/lists/*
 
-# Install app
-ADD . .
-RUN MIX_ENV=prod mix compile
+ENV HOME /opt/app
+WORKDIR $HOME
 
-RUN MIX_ENV=prod mix generate_jwt_key
+ENV MIX_ENV prod
 
-# The command to run when this image starts up
-CMD MIX_ENV=prod mix run --no-halt
+RUN mix local.hex --force
+RUN mix local.rebar --force
+
+COPY mix.* ./
+
+RUN mix deps.get --only prod
+
+RUN mix deps.compile
+
+COPY . .
+
+RUN mix compile
+
+RUN mix generate_jwt_key
+
+CMD mix run --no-halt

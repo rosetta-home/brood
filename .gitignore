@@ -19,6 +19,9 @@ erl_crash.dump
 priv/ssl/*.crt
 priv/ssl/*.key
 priv/ssl/*.pem
+priv/ssl/*.json
+priv/ssl/*.jwk
+priv/ssl/*.der
 
 script/certs
 script/keys

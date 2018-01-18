@@ -12,7 +12,12 @@ defmodule Brood.Application do
     import Supervisor.Spec, warn: false
     children = [
       Brood.DB.InfluxDB.child_spec,
-      Plug.Adapters.Cowboy.child_spec(:http, Brood.HTTPRouter, [], [port: http_port, dispatch: dispatch()]),
+      Plug.Adapters.Cowboy.child_spec(:https, Brood.HTTPRouter, [], [
+        port: http_port,
+        dispatch: dispatch(),
+        keyfile: "#{:code.priv_dir(:brood)}/ssl/domain.pem",
+        certfile: "#{:code.priv_dir(:brood)}/ssl/domain_cert.der"
+      ]),
       supervisor(Task.Supervisor, [[name: Brood.TaskSupervisor]]),
       worker(Mongo, [[name: :mongo_brood, hostname: @mongo_host, database: @mongo_database, pool: DBConnection.Poolboy]]),
       worker(Brood.SatoriPublisher, []),
