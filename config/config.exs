@@ -9,8 +9,19 @@ config :brood,
   mqtt_host: "vernemq",
   mqtt_port: 4883,
   http_port: System.get_env("HTTP_PORT") || "8080",
+  https_port: System.get_env("HTTPS_PORT") || "8443",
   account_collection: "accounts",
-  acme_server: "https://acme-v01.api.letsencrypt.org"
+  acme_server: "https://acme-v01.api.letsencrypt.org",
+  acme_registration: System.get_env("ACME_REGISTRATION"),
+  domain_name: System.get_env("DOMAIN"),
+  cert_subject: %{
+    common_name: System.get_env("DOMAIN"),
+    organization_name: "Rosetta Home",
+    organizational_unit: "R&D",
+    locality_name: "Chicago",
+    state_or_province: "Illinois",
+    country_name: "US"
+  }
 
 config :brood, Brood.DB.InfluxDB,
   host:      "influxdb",

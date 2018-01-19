@@ -8,18 +8,12 @@ defmodule Brood.Application do
   #@account_collection Application.get_env(:brood, :account_collection)
 
   def start(_type, _args) do
-    http_port = Application.get_env(:brood, :http_port) |> String.to_integer()
     import Supervisor.Spec, warn: false
     children = [
       Brood.DB.InfluxDB.child_spec,
-      Plug.Adapters.Cowboy.child_spec(:https, Brood.HTTPRouter, [], [
-        port: http_port,
-        dispatch: dispatch(),
-        keyfile: "#{:code.priv_dir(:brood)}/ssl/domain.pem",
-        certfile: "#{:code.priv_dir(:brood)}/ssl/domain_cert.der"
-      ]),
       supervisor(Task.Supervisor, [[name: Brood.TaskSupervisor]]),
       worker(Mongo, [[name: :mongo_brood, hostname: @mongo_host, database: @mongo_database, pool: DBConnection.Poolboy]]),
+      worker(Brood.WebWorker, []),
       worker(Brood.SatoriPublisher, []),
       worker(Brood.MQTTHandler, []),
     ]
@@ -38,20 +32,5 @@ defmodule Brood.Application do
   def create_mongo_db({:ok, _pid} = result) do
     Account.index()
     result
-  end
-
-  defp dispatch do
-    [
-      {:_, [
-        {"/", Brood.Resource.UI.Index, []},
-        {"/login", Brood.Resource.UI.Index, []},
-        {"/register", Brood.Resource.UI.Index, []},
-        {"/ws", Brood.Resource.WebSocket.Handler, []},
-        {"/static/[...]", :cowboy_static, {:priv_dir,  :brood, "static"}},
-        {"/build/[...]", :cowboy_static, {:priv_dir,  :brood, "ui/build"}},
-        {"/.well-known/acme-challenge/:token", Brood.Resource.Util.LetsEncrypt, []},
-        {:_, Plug.Adapters.Cowboy.Handler, {Brood.HTTPRouter, []}}
-      ]}
-    ]
   end
 end

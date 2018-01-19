@@ -5,7 +5,7 @@ defmodule Brood.Resource.UI.Index do
     defstruct hostname: nil
   end
 
-  def init({:tcp, :http}, req, opts) do
+  def init({_, _}, req, opts) do
     {host, req} = :cowboy_req.host(req)
     {:ok, req, %State{:hostname => host }}
   end
