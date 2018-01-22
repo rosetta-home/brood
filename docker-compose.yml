@@ -49,6 +49,8 @@ services:
     build: .
     logging:
       driver: syslog
+    volumes:
+      - ./priv/ssl:/etc/ssl/brood
     depends_on:
       - vernemq
       - influxdb

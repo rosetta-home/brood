@@ -8,11 +8,12 @@ defmodule Mix.Tasks.GenerateSslCerts do
   """
   def run(_args) do
     Application.ensure_all_started(:acme)
+    ssl_path = Application.get_env(:brood, :ssl_path)
     subject = Application.get_env(:brood, :cert_subject)
     domain_name = Application.get_env(:brood, :domain_name)
     acme_registration = Application.get_env(:brood, :acme_registration)
-    user = "#{:code.priv_dir(:brood)}/ssl/user.pem"
-    domain = "#{:code.priv_dir(:brood)}/ssl/domain.pem"
+    user = "#{ssl_path}/user.pem"
+    domain = "#{ssl_path}/domain.pem"
     case File.exists?(user) && File.exists?(domain) do
       false ->
         user |> generate_private_pem()
@@ -41,7 +42,7 @@ defmodule Mix.Tasks.GenerateSslCerts do
       end
     end)
     {:ok, bin} = Poison.encode(challenge)
-    File.write!("#{:code.priv_dir(:brood)}/ssl/challenge.json", bin)
+    File.write!("#{ssl_path}/challenge.json", bin)
     {:ok, challenge} = Acme.respond_challenge(challenge) |> Acme.request(conn)
     Logger.info("#{inspect challenge}")
     wait_for_valid_cert(challenge)
@@ -51,9 +52,9 @@ defmodule Mix.Tasks.GenerateSslCerts do
     Logger.info("#{inspect url}")
     {:ok, cert} = Acme.get_certificate(url) |> Acme.request(conn)
     Logger.info("#{inspect cert}")
-    File.write!("#{:code.priv_dir(:brood)}/ssl/domain_cert.der", cert)
-    Mix.shell.cmd("openssl x509 -in #{:code.priv_dir(:brood)}/ssl/domain_cert.der -inform DER -out #{:code.priv_dir(:brood)}/ssl/domain_cert.pem")
-    File.rm("#{:code.priv_dir(:brood)}/ssl/domain_cert.der")
+    File.write!("#{ssl_path}/domain_cert.der", cert)
+    Mix.shell.cmd("openssl x509 -in #{ssl_path}/domain_cert.der -inform DER -out #{ssl_path}/domain_cert.pem")
+    File.rm("#{ssl_path}/domain_cert.der")
     Mix.shell.info("SSL Certificates generated, please restart Brood")
   end
 

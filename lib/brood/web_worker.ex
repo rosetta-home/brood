@@ -1,9 +1,10 @@
 defmodule Brood.WebWorker do
   require Logger
   def start_link do
+    ssl_path = Application.get_env(:brood, :ssl_path)
     http_port = Application.get_env(:brood, :http_port) |> String.to_integer()
     https_port = Application.get_env(:brood, :https_port) |> String.to_integer()
-    case File.exists?("#{:code.priv_dir(:brood)}/ssl/domain_cert.pem") do
+    case File.exists?("#{ssl_path}/domain_cert.pem") do
       true ->
         start_redirector(http_port)
         start_https(https_port)
@@ -13,12 +14,12 @@ defmodule Brood.WebWorker do
 
   def start_https(port) do
     Logger.info "starting HTTPS: #{port}"
-
+    ssl_path = Application.get_env(:brood, :ssl_path)
     Plug.Adapters.Cowboy.https(Brood.HTTPRouter, [],
       port: port,
       dispatch: dispatch(),
-      keyfile: "#{:code.priv_dir(:brood)}/ssl/domain.pem",
-      certfile: "#{:code.priv_dir(:brood)}/ssl/domain_cert.pem",
+      keyfile: "#{ssl_path}/domain.pem",
+      certfile: "#{ssl_path}/domain_cert.pem",
       versions: [:"tlsv1.2", :"tlsv1.1", :"tlsv1"],
       ciphers: ~w(
         ECDHE-ECDSA-AES256-GCM-SHA384

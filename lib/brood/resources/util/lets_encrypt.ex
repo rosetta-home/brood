@@ -4,7 +4,8 @@ defmodule Brood.Resource.Util.LetsEncrypt do
   def init(_, req, []) do
     {host, _} = :cowboy_req.host(req)
     Logger.info "Let's Encrypt Host: #{host}"
-    json = File.read!("#{:code.priv_dir(:brood)}/ssl/challenge.json")
+    ssl_path = Application.get_env(:brood, :ssl_path)
+    json = File.read!("#{ssl_path}/challenge.json")
     {:ok, challenge} = Poison.decode(json, as: %Acme.Challenge{})
     Logger.info("Got Challenge: #{inspect challenge}")
     {token, _}  = :cowboy_req.binding(:token, req)
@@ -12,7 +13,7 @@ defmodule Brood.Resource.Util.LetsEncrypt do
     {:ok, req2} =
       case challenge.token do
         token ->
-          user = "#{:code.priv_dir(:brood)}/ssl/user.pem"
+          user = "#{ssl_path}/user.pem"
           jwk = JOSE.JWK.from_pem_file(user)
           thumbprint = Acme.Challenge.create_key_authorization(token, jwk)
           Logger.info "Generated Thumbprint: #{thumbprint}"
