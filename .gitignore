@@ -32,4 +32,5 @@ script/*.key
 
 .env
 *-prod.env
+docker.env
 priv/jwt_key.bin
