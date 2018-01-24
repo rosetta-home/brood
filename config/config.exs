@@ -24,6 +24,15 @@ config :brood,
     country_name: "US"
   }
 
+config :brood, Brood.Scheduler,
+  jobs: [
+    #Run at 6AM and 6PM, twice a day as Let's Encrypt recommends
+    {"0 6,18 * * *", fn ->
+      Logger.info "Running SSL Renewal"
+      System.cmd("mix", ["generate_ssl_certs"])
+    end}
+  ]
+
 config :brood, Brood.DB.InfluxDB,
   host:      "influxdb",
   pool:      [ max_overflow: 10, size: 5 ],

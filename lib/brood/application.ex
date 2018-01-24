@@ -16,6 +16,7 @@ defmodule Brood.Application do
       worker(Brood.WebWorker, []),
       worker(Brood.SatoriPublisher, []),
       worker(Brood.MQTTHandler, []),
+      worker(Brood.Scheduler, [])
     ]
     opts = [strategy: :one_for_one, name: Brood.Supervisor]
     Supervisor.start_link(children, opts) |> create_influx_db |> create_mongo_db

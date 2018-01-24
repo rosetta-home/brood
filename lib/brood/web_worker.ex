@@ -76,14 +76,25 @@ defmodule Brood.WebWorker do
     Logger.info "starting HTTP: #{port}"
     Plug.Adapters.Cowboy.http(Brood.HTTPRouter, [],
       port: port,
-      dispatch: dispatch(),
+      dispatch:  [
+        {:_, [
+          {"/.well-known/acme-challenge/:token", Brood.Resource.Util.LetsEncrypt, []}
+        ]}
+      ]
     )
   end
 
   def start_redirector(port) do
     Logger.info "starting HTTP: #{port}"
+    #TODO add health-check endpoint
     Plug.Adapters.Cowboy.http(Brood.HTTPSRedirector, [],
       port: port,
+      dispatch: [
+        {:_, [
+          {"/.well-known/acme-challenge/:token", Brood.Resource.Util.LetsEncrypt, []},
+          {:_, Plug.Adapters.Cowboy.Handler, {Brood.HTTPSRedirector, []}}
+        ]}
+      ]
     )
   end
 

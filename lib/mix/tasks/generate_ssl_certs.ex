@@ -35,12 +35,7 @@ defmodule Mix.Tasks.GenerateSslCerts do
     Logger.info "authorize: #{domain_name}"
     {:ok, auth} = Acme.authorize(domain_name) |> Acme.request(conn)
     Logger.info("#{inspect auth}")
-    challenge = auth.challenges |> Enum.find(fn ch ->
-      case ch.type do
-        "http-01" -> true
-        _ -> false
-      end
-    end)
+    challenge = auth |> Acme.Authorization.fetch_challenge("http-01")
     {:ok, bin} = Poison.encode(challenge)
     File.write!("#{ssl_path}/challenge.json", bin)
     {:ok, challenge} = Acme.respond_challenge(challenge) |> Acme.request(conn)

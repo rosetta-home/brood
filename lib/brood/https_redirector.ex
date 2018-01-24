@@ -1,7 +1,8 @@
 defmodule Brood.HTTPSRedirector do
   use Plug.Router
+  require Logger
 
-  plug Plug.SSL
+  plug Brood.ExcludePathsSSL, exclude_paths: [[".well-known", "acme-challenge"], ["health-check"]]
   plug :match
   plug :dispatch
 
