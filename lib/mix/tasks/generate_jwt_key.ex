@@ -7,7 +7,7 @@ defmodule Mix.Tasks.GenerateJwtKey do
   Generate JWT Key for Guardian API
   """
   def run(_args) do
-    dir = :code.priv_dir(:brood)
+    dir = Application.get_env(:brood, :ssl_path)
     file = "#{dir}/jwt_key.bin"
     case File.exists?(file) do
       true -> Mix.shell.info "Key file already exists"
