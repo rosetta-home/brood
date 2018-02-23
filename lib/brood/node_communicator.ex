@@ -5,6 +5,8 @@ defmodule Brood.NodeCommunicator do
   @host Application.get_env(:brood, :mqtt_host)
   @port Application.get_env(:brood, :mqtt_port)
 
+  @realtime_inf "realtime_inf"
+
   @end_points ["request", "response", "point"]
 
   defmodule State do
@@ -47,7 +49,6 @@ defmodule Brood.NodeCommunicator do
 
   def on_publish(["node", client, "point"], message, %State{id: id} = state) when client ==  id do
     Logger.info "#{client} Data Point Received: #{inspect message}"
-    send(state.parent, message |> Poison.decode!)
     {:ok, state}
   end
 

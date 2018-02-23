@@ -22,6 +22,9 @@ defmodule Brood.DB.InfluxDB do
 
   def create_retention_policies do
     Instream.Admin.RetentionPolicy.create(
+      "realtime_inf", @db, "1800d", 1, true
+    ) |> execute() #default
+    Instream.Admin.RetentionPolicy.create(
       "realtime", @db, "30d", 1, true
     ) |> execute() #default
 
@@ -47,8 +50,8 @@ defmodule Brood.DB.InfluxDB do
     """ |> execute(method: :post)
   end
 
-  def write_points(points) do
-    case %{database: @db, points: points} |> write(database: @db) do
+  def write_points(points, retention_policy \\ "realtime") do
+    case %{database: @db, points: points} |> write(retention_policy: retention_policy, database: @db) do
       :ok = resp ->
         Logger.debug "#{inspect resp}"
         points
