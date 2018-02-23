@@ -6,7 +6,7 @@ defmodule Brood.MQTTHandler do
   @host Application.get_env(:brood, :mqtt_host)
   @port Application.get_env(:brood, :mqtt_port)
 
-  @end_points ["request", "response", "point"]
+  @end_points ["request", "response", "point", "payload"]
 
   def start_link do
     client = Node.self |> Atom.to_string
