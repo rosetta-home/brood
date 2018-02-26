@@ -76,25 +76,28 @@ defmodule Brood.MQTTHandler do
     type = dp |> Map.get("type")
     id = dp |> Map.get("interface_pid")
     state = dp |> Map.get("state")
-    state |> Enum.map(fn {k, v} ->
-      %{
-        measurement: "#{type}.#{k}",
-        timestamp: timestamp,
-        fields: %{
-          value: case v do
-            num when num |> is_number -> num / 1
-            text -> text
-          end
-        },
-        tags: %{
-          node_id: client,
-          id: id,
-          type: type,
-          zipcode: nil,
-          climate_zone: nil
-        }
-      }
-
+    state |> Enum.flat_map(fn {k, v} ->
+      case k in ["door", "motion"] do
+        true ->
+          [%{
+            measurement: "#{type}.#{k}",
+            timestamp: timestamp,
+            fields: %{
+              value: case v do
+                num when num |> is_number -> num / 1
+                text -> text
+              end
+            },
+            tags: %{
+              node_id: client,
+              id: id,
+              type: type,
+              zipcode: nil,
+              climate_zone: nil
+            }
+          }]
+        false -> []
+      end
     end)
   end
 
