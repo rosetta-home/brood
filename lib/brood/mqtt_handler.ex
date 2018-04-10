@@ -37,7 +37,7 @@ defmodule Brood.MQTTHandler do
 
   def on_publish(["node", client, "point"], message, state) do
     Logger.info "#{client} Data Point Received: #{inspect message}"
-    Task.Supervisor.start_child(Brood.TaskSupervisor, fn -> {client, message} |> process_point end)
+    #Task.Supervisor.start_child(Brood.TaskSupervisor, fn -> {client, message} |> process_point end)
     {:ok, state}
   end
 
