@@ -38,6 +38,8 @@ defmodule CertTest.Mixfile do
       {:tzdata, "~> 0.5.12"},
       {:timex, "~> 3.1"},
       {:acme, "~> 0.5.1"},
+      {:ex_aws, "~> 2.0"},
+      {:ex_aws_s3, "~> 2.0"},
       {:hackney, "~> 1.8.6", override: true},
       {:quantum, "~> 2.2"}
     ]

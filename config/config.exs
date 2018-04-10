@@ -15,6 +15,7 @@ config :brood,
   acme_server: "https://acme-v01.api.letsencrypt.org",
   acme_registration: System.get_env("ACME_REGISTRATION"),
   domain_name: System.get_env("DOMAIN"),
+  influxdb_backup_bucket: "brood-influxdb-backup-dev",
   cert_subject: %{
     common_name: System.get_env("DOMAIN"),
     organization_name: "Rosetta Home",
@@ -30,6 +31,10 @@ config :brood, Brood.Scheduler,
     {"0 6,18 * * *", fn ->
       Logger.info "Running SSL Renewal"
       System.cmd("mix", ["generate_ssl_certs"])
+    end},
+    {"0 5,17 * * *", fn ->
+      Logger.info "Running Influxdb Backup"
+      System.cmd("mix", ["backup_influxdb"])
     end}
   ]
 

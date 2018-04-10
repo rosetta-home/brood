@@ -7,10 +7,11 @@ RUN apt-get update && apt-get install -y \
       inotify-tools \
       && rm -rf /var/lib/apt/lists/*
 
+RUN wget https://dl.influxdata.com/influxdb/releases/influxdb_1.4.3_amd64.deb
+RUN dpkg -i influxdb_1.4.3_amd64.deb
+
 ENV HOME /opt/app
 WORKDIR $HOME
-
-ENV MIX_ENV prod
 
 RUN mix local.hex --force
 RUN mix local.rebar --force
