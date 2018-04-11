@@ -22,16 +22,23 @@ defmodule Brood.DB.InfluxDB do
 
   def create_retention_policies do
     Instream.Admin.RetentionPolicy.create(
-      "realtime_inf", @db, "1800d", 1, true
-    ) |> execute() #default
-    Instream.Admin.RetentionPolicy.create(
-      "realtime", @db, "30d", 1, true
-    ) |> execute() #default
-
-    Instream.Admin.RetentionPolicy.create(
-      "fifteen_minute", @db, "360d", 1
+      "realtime_inf", @db, "1800d", 1
     ) |> execute()
-
+    Instream.Admin.RetentionPolicy.alter(
+      "realtime_inf", @db, "DURATION 1800d REPLICATION 1"
+    ) |> execute()
+    Instream.Admin.RetentionPolicy.create(
+      "realtime", @db, "1800d", 1, true
+    ) |> execute() #default
+    Instream.Admin.RetentionPolicy.alter(
+      "realtime", @db, "DURATION 1800d REPLICATION 1 DEFAULT"
+    ) |> execute() #default
+    Instream.Admin.RetentionPolicy.create(
+      "fifteen_minute", @db, "1800d", 1
+    ) |> execute()
+    Instream.Admin.RetentionPolicy.alter(
+      "fifteen_minute", @db, "DURATION 1800d REPLICATION 1"
+    ) |> execute()
     Instream.Admin.RetentionPolicy.create(
       "one_hour", @db, "INF", 1
     ) |> execute()
