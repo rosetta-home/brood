@@ -12,7 +12,7 @@ defmodule Mix.Tasks.BackupInfluxdb do
   def run(_args) do
     Application.ensure_all_started(:hackney)
     Application.ensure_all_started(:poison)
-    Mix.shell.cmd("influxd backup -host #{get_in(@influxdb_host, [:host])}:8088 -database brood /tmp/influxdb-backup")
+    Mix.shell.cmd("influxd backup -portable -host #{get_in(@influxdb_host, [:host])}:8088 -database \"brood\" /tmp/influxdb-backup")
     Mix.shell.cmd("cd /tmp/influxdb-backup && tar zczf /tmp/influxdb-backup.tar.gz * && rm -rf /tmp/influxdb-backup")
     Mix.shell.info "Uploading /tmp/influxdb-backup.tar.gz"
     case ExAws.S3.put_object(
